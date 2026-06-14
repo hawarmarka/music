@@ -680,143 +680,482 @@
     border-radius: 14px;
   }
 }
-/* =========================
-   Bottom Navigation
-   ========================= */
+/* ============================================================
+   HAWARMUSIC FINAL UI FIX
+   - Alttaki sonradan eklenen menüyü tamamen kapatır
+   - Sol menüyü glass görünümlü yapar
+   - Tüm butonları glass stile çeker
+   - Gereksiz ok/pseudo işaretlerini kapatır
+   ============================================================ */
 
-.hm-app-shell {
-  min-height: 100vh;
-  background: linear-gradient(180deg, #071828 0%, #0a1f32 100%);
-}
-
-.hm-page-content {
-  min-height: 100vh;
-  padding: 24px 18px 110px;
-}
-
-.page-box {
-  min-height: 300px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  display: grid;
-  place-items: center;
-  font-size: 24px;
-  font-weight: 700;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* nav wrapper */
-.hm-bottom-nav-wrap {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 18px;
-  display: flex;
-  justify-content: center;
-  z-index: 1000;
-  pointer-events: none;
-}
-
-.hm-bottom-nav {
-  pointer-events: auto;
-  width: min(92%, 760px);
-  background: #ffffff;
-  border-radius: 22px;
-  padding: 14px 16px;
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.22),
-    0 3px 10px rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-.hm-nav-item {
-  position: relative;
-  width: 72px;
-  min-height: 58px;
-  text-decoration: none;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  transition: 0.28s ease;
-}
-
-.hm-nav-icon {
-  width: 26px;
-  height: 26px;
-  font-size: 24px;
-  display: grid;
-  place-items: center;
-  transition: all 0.28s ease;
-  z-index: 2;
-}
-
+/* Eski alttaki beyaz navigation tamamen kapalı */
+.hm-bottom-nav-wrap,
+.hm-bottom-nav,
+.hm-app-shell,
+.hm-page-content,
+.page-box,
+.hm-nav-item,
+.hm-nav-icon,
 .hm-nav-text {
-  position: absolute;
-  bottom: -2px;
-  font-size: 12px;
-  font-weight: 700;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: all 0.28s ease;
-  white-space: nowrap;
+  display: none !important;
 }
 
-/* aktif item */
-.hm-nav-item.active .hm-nav-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #19d36b, #10b95b);
-  color: #081a12;
-  transform: translateY(-28px);
+/* ============================================================
+   Sol Sidebar Glass Görünüm
+   ============================================================ */
+
+.sidebar {
+  width: 260px !important;
+  min-width: 260px !important;
+  padding: 24px 16px !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(91, 140, 255, 0.16), transparent 35%),
+    radial-gradient(circle at 100% 20%, rgba(168, 85, 247, 0.14), transparent 35%),
+    linear-gradient(180deg, rgba(16, 22, 45, 0.92), rgba(8, 11, 25, 0.94)) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(22px) !important;
+  -webkit-backdrop-filter: blur(22px) !important;
+  box-shadow: 18px 0 50px rgba(0, 0, 0, 0.24) !important;
+}
+
+.sb-logo {
+  height: auto !important;
+  margin-bottom: 24px !important;
+  padding: 0 8px 18px !important;
+}
+
+.sb-logo .brand-word {
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+  background: linear-gradient(135deg, #6ea8ff, #a855f7) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.sb-nav {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.sb-nav button {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 52px !important;
+  padding: 0 16px !important;
+  border-radius: 18px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #aeb8db !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  text-align: left !important;
+  box-shadow: none !important;
+  transition: 0.22s ease !important;
+  overflow: visible !important;
+}
+
+.sb-nav button::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 18px !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  opacity: 0 !important;
+  transition: 0.22s ease !important;
+}
+
+.sb-nav button:hover::before {
+  opacity: 1 !important;
+}
+
+.sb-nav button:hover {
+  color: #ffffff !important;
+  transform: translateX(4px) !important;
+}
+
+.sb-nav button .sb-ic {
+  position: relative !important;
+  z-index: 2 !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  border-radius: 14px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 18px !important;
+  color: currentColor !important;
+  transition: 0.22s ease !important;
+}
+
+.sb-nav button span:last-child {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.sb-nav button.on {
+  color: #ffffff !important;
+  background:
+    linear-gradient(135deg, rgba(90, 124, 255, 0.24), rgba(168, 85, 247, 0.18)) !important;
+  border-color: rgba(128, 160, 255, 0.36) !important;
   box-shadow:
-    0 12px 24px rgba(25, 211, 107, 0.35),
-    0 0 0 6px #0a1f32;
-  font-size: 26px;
+    0 14px 34px rgba(70, 93, 255, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
 }
 
-.hm-nav-item.active .hm-nav-text {
-  opacity: 1;
+.sb-nav button.on::before {
+  opacity: 1 !important;
+}
+
+.sb-nav button.on::after {
+  content: "" !important;
+  position: absolute !important;
+  left: -17px !important;
+  top: 50% !important;
+  width: 4px !important;
+  height: 32px !important;
+  border-radius: 0 999px 999px 0 !important;
+  background: linear-gradient(180deg, #6ea8ff, #a855f7) !important;
+  transform: translateY(-50%) !important;
+  box-shadow: 0 0 18px rgba(110, 168, 255, 0.7) !important;
+}
+
+.sb-nav button.on .sb-ic {
+  background: linear-gradient(135deg, #5b8cff, #9b5cff) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 10px 24px rgba(91, 140, 255, 0.35),
+    0 0 0 4px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Kullanıcı bölümü */
+.sb-foot {
+  margin-top: auto !important;
+  padding-top: 18px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.sb-user {
+  padding: 12px !important;
+  border-radius: 18px !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+.sb-av {
+  box-shadow: 0 10px 24px rgba(91, 140, 255, 0.28) !important;
+}
+
+.sb-uinfo strong {
+  color: #ffffff !important;
+}
+
+.sb-uinfo span {
+  color: #8f9bc6 !important;
+}
+
+.sb-logout {
+  margin-top: 12px !important;
+  width: 100% !important;
+  height: 42px !important;
+  border-radius: 14px !important;
+  color: #aeb8db !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  transition: 0.2s ease !important;
+}
+
+.sb-logout:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ============================================================
+   Tüm Butonlar Glass Görünüm
+   ============================================================ */
+
+button,
+.btn,
+a.btn,
+.chip,
+.row-link,
+.back-btn,
+.auth-link,
+input[type="button"],
+input[type="submit"] {
+  border-radius: 15px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.045)) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease !important;
+  text-decoration: none !important;
+}
+
+button:hover,
+.btn:hover,
+a.btn:hover,
+.chip:hover,
+.row-link:hover,
+.back-btn:hover,
+.auth-link:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  transform: translateY(-1px);
+  border-color: rgba(140, 160, 255, 0.34) !important;
+  background:
+    linear-gradient(135deg, rgba(120, 145, 255, 0.25), rgba(168, 85, 247, 0.16)) !important;
+  box-shadow:
+    0 18px 42px rgba(80, 100, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+button:active,
+.btn:active,
+a.btn:active,
+.chip:active,
+.row-link:active,
+.back-btn:active,
+input[type="button"]:active,
+input[type="submit"]:active {
   transform: translateY(0);
-  color: #3b3b3b;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
 }
 
-.hm-nav-item:hover .hm-nav-icon {
-  transform: translateY(-4px);
+button:disabled,
+.btn:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
 }
 
-.hm-nav-item.active:hover .hm-nav-icon {
-  transform: translateY(-28px);
+/* Ana gradient butonları glass yap */
+.btn-grad,
+.hm-main-auth-btn,
+.pb-play,
+.off-play,
+.sc-play {
+  background:
+    linear-gradient(135deg, rgba(91, 140, 255, 0.46), rgba(168, 85, 247, 0.36)) !important;
+  border: 1px solid rgba(180, 190, 255, 0.24) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 16px 38px rgba(115, 95, 255, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
 }
 
-@media (max-width: 600px) {
-  .hm-bottom-nav {
-    width: calc(100% - 20px);
-    padding: 12px 10px;
-    border-radius: 18px;
+/* Ghost butonlar */
+.btn-ghost,
+.hm-outline-auth-btn {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.035)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+/* Topbar butonları */
+.tb-actions button,
+.tb-actions .btn {
+  height: 44px !important;
+  padding: 0 18px !important;
+  border-radius: 15px !important;
+}
+
+/* Bildirim butonu */
+.notif-btn {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 15px !important;
+}
+
+/* Kart içi küçük butonlar */
+.card button,
+.panel button,
+.modal button,
+.song-card button,
+.playlist-card button,
+.sc-menu button,
+.sc-menu a,
+.member-actions button,
+.queue-list button,
+.comment-add button,
+.req-row button,
+.invite-row button,
+.set-actions button {
+  border-radius: 14px !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.04)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  color: #ffffff !important;
+}
+
+/* Tehlikeli/silme butonları glass ama kırmızı tonlu */
+.m-danger,
+.danger,
+.off-del:hover,
+.sb-logout:hover {
+  color: #ff8a8a !important;
+  border-color: rgba(255, 120, 120, 0.22) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 80, 80, 0.16), rgba(255, 255, 255, 0.035)) !important;
+}
+
+/* ============================================================
+   Gereksiz ok/pseudo işaretlerini kapat
+   ============================================================ */
+
+button::after,
+.btn::after,
+a.btn::after,
+.row-link::after,
+.back-btn::after,
+.auth-link::after,
+.chip::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Sidebar aktif çizgisi hariç pseudo oklar kapalı */
+.sb-nav button::after {
+  display: block !important;
+}
+
+/* Select/dropdown native oklarını daha sade göster */
+select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: none !important;
+}
+
+/* Eğer bazı linklerde ok karakteri varsa görsel olarak sadeleştir */
+.row-link,
+.back-btn {
+  padding: 0.5rem 0.8rem !important;
+}
+
+/* Topbardaki eski ikonlu buton metinlerini temiz göster */
+.tb-actions .btn-ghost,
+.tb-actions .btn-grad {
+  font-size: 0 !important;
+}
+
+.tb-actions .btn-ghost::before {
+  content: "Yükle" !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+.tb-actions .btn-grad::before {
+  content: "Linkten ekle" !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+/* Empty alanındaki butonlar */
+.empty .btn,
+.empty button {
+  padding: 0 18px !important;
+  min-height: 44px !important;
+}
+
+/* Player butonları yuvarlak kalsın */
+.pb-play,
+.off-play,
+.sc-play {
+  border-radius: 999px !important;
+}
+
+/* Üç nokta menüsü çok büyük olmasın */
+.sc-dots {
+  min-height: 34px !important;
+  width: 34px !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+/* ============================================================
+   Mobil düzen
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr !important;
   }
 
-  .hm-nav-item {
-    width: 62px;
+  .sidebar {
+    display: none !important;
   }
 
-  .hm-nav-item.active .hm-nav-icon {
-    width: 58px;
-    height: 58px;
-    transform: translateY(-24px);
+  .mobile-nav {
+    display: flex !important;
+    position: fixed !important;
+    left: 10px !important;
+    right: 10px !important;
+    bottom: calc(var(--player-h) + 10px) !important;
+    z-index: 25 !important;
+    padding: 8px !important;
+    justify-content: space-around !important;
+    border-radius: 22px !important;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.045)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28) !important;
   }
 
-  .hm-nav-item.active:hover .hm-nav-icon {
-    transform: translateY(-24px);
+  .mobile-nav button {
+    min-height: 46px !important;
+    border-radius: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    color: #9aa7ce !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 8px !important;
   }
 
-  .hm-nav-text {
-    font-size: 11px;
+  .mobile-nav button.on {
+    color: #ffffff !important;
+    background:
+      linear-gradient(135deg, rgba(91, 140, 255, 0.34), rgba(168, 85, 247, 0.24)) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .mobile-nav button span {
+    font-size: 1.15rem !important;
+  }
+
+  .mobile-nav button i {
+    font-size: 0.62rem !important;
+    font-style: normal !important;
   }
 }
