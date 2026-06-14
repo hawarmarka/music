@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { Component, useEffect, useMemo, useState } from "react";
 import { api, getToken, clearToken } from "./lib/api";
 import { PlayerProvider } from "./lib/player";
+
 import {
   FiHome,
   FiMusic,
@@ -16,6 +17,7 @@ import {
 import Auth from "./pages/Auth";
 import PlayerBar from "./components/PlayerBar";
 import Notifications from "./components/Notifications";
+
 import Home from "./pages/Home";
 import Library from "./pages/Library";
 import Upload from "./pages/Upload";
@@ -28,7 +30,7 @@ import Family from "./pages/Family";
 import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
 
-const NAV = [
+const BASE_NAV = [
   { key: "home", label: "Ana Sayfa", Icon: FiHome },
   { key: "library", label: "Kütüphane", Icon: FiMusic },
   { key: "playlists", label: "Playlistler", Icon: FiList },
@@ -39,51 +41,178 @@ const NAV = [
   { key: "settings", label: "Ayarlar", Icon: FiSettings },
 ];
 
+const VALID_ROUTES = [
+  "home",
+  "library",
+  "upload",
+  "import",
+  "offline",
+  "playlists",
+  "favorites",
+  "requests",
+  "family",
+  "admin",
+  "settings",
+];
+
+function readRouteFromHash() {
+  const raw = window.location.hash || "";
+  const cleaned = raw
+    .replace(/^#\/?/, "")
+    .split("?")[0]
+    .trim();
+
+  if (!cleaned) return "home";
+  if (!VALID_ROUTES.includes(cleaned)) return "home";
+
+  return cleaned;
+}
+
+class PageErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, message: "" };
+  }
+
+  static getDerivedStateFromError(error) {
+    return {
+      hasError: true,
+      message: error?.message || "Sayfa yüklenirken bir hata oluştu.",
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.routeKey !== this.props.routeKey && this.state.hasError) {
+      this.setState({ hasError: false, message: "" });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="empty glass">
+          <div className="empty-ic">!</div>
+          <h3>Sayfa açılırken hata oluştu</h3>
+          <p>{this.state.message}</p>
+          <button
+            type="button"
+            className="btn btn-grad"
+            onClick={() => {
+              window.location.hash = "home";
+              window.location.reload();
+            }}
+          >
+            Ana Sayfaya Dön
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [route, setRoute] = useState(location.hash.slice(1) || "home");
+  const [route, setRoute] = useState(readRouteFromHash);
   const [online, setOnline] = useState(navigator.onLine);
 
   useEffect(() => {
-    const onHash = () => setRoute(location.hash.slice(1) || "home");
-    window.addEventListener("hashchange", onHash);
+    function syncRoute() {
+      setRoute(readRouteFromHash());
+    }
 
-    const on = () => setOnline(true);
-    const off = () => setOnline(false);
-
-    window.addEventListener("online", on);
-    window.addEventListener("offline", off);
+    window.addEventListener("hashchange", syncRoute);
 
     return () => {
-      window.removeEventListener("hashchange", onHash);
-      window.removeEventListener("online", on);
-      window.removeEventListener("offline", off);
+      window.removeEventListener("hashchange", syncRoute);
     };
   }, []);
 
   useEffect(() => {
-    if (!getToken()) {
-      setLoading(false);
-      return;
+    function handleOnline() {
+      setOnline(true);
     }
 
-    api
-      .me()
-      .then(setUser)
-      .catch(() => clearToken())
-      .finally(() => setLoading(false));
+    function handleOffline() {
+      setOnline(false);
+    }
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
   }, []);
 
-  function go(key) {
-    location.hash = key;
-    setRoute(key);
+  useEffect(() => {
+    let alive = true;
+
+    async function loadUser() {
+      try {
+        if (!getToken()) {
+          if (alive) setLoading(false);
+          return;
+        }
+
+        const me = await api.me();
+
+        if (alive) {
+          setUser(me);
+          setLoading(false);
+        }
+      } catch {
+        clearToken();
+
+        if (alive) {
+          setUser(null);
+          setLoading(false);
+        }
+      }
+    }
+
+    loadUser();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  function go(nextRoute) {
+    if (!VALID_ROUTES.includes(nextRoute)) {
+      nextRoute = "home";
+    }
+
+    setRoute(nextRoute);
+
+    if (window.location.hash !== `#${nextRoute}`) {
+      window.location.hash = nextRoute;
+    }
   }
 
   function logout() {
     clearToken();
     setUser(null);
+    setRoute("home");
+    window.location.hash = "home";
   }
+
+  const nav = useMemo(() => {
+    const items = [...BASE_NAV];
+
+    if (user?.role === "admin") {
+      items.splice(7, 0, {
+        key: "admin",
+        label: "Admin",
+        Icon: FiGrid,
+      });
+    }
+
+    return items;
+  }, [user]);
 
   if (loading) {
     return (
@@ -109,15 +238,20 @@ export default function App() {
     favorites: <Favorites />,
     requests: <Requests />,
     family: <Family user={user} />,
-    admin: <Admin />,
+    admin: user.role === "admin" ? (
+      <Admin />
+    ) : (
+      <div className="empty glass">
+        <div className="empty-ic">!</div>
+        <h3>Yetkin yok</h3>
+        <p>Bu sayfaya sadece yönetici hesabı erişebilir.</p>
+        <button type="button" className="btn btn-grad" onClick={() => go("home")}>
+          Ana Sayfaya Dön
+        </button>
+      </div>
+    ),
     settings: <Settings user={user} />,
   };
-
-  const nav = [...NAV];
-
-  if (user.role === "admin") {
-    nav.splice(7, 0, { key: "admin", label: "Admin", Icon: FiGrid });
-  }
 
   return (
     <PlayerProvider>
@@ -128,19 +262,21 @@ export default function App() {
           </div>
 
           <nav className="sb-nav">
-            {nav.map((n) => {
-              const Icon = n.Icon;
+            {nav.map((item) => {
+              const Icon = item.Icon;
+              const active = effectiveRoute === item.key;
 
               return (
                 <button
-                  key={n.key}
-                  className={effectiveRoute === n.key ? "on" : ""}
-                  onClick={() => go(n.key)}
+                  key={item.key}
+                  type="button"
+                  className={active ? "on" : ""}
+                  onClick={() => go(item.key)}
                 >
                   <span className="sb-ic">
                     <Icon />
                   </span>
-                  <span>{n.label}</span>
+                  <span>{item.label}</span>
                 </button>
               );
             })}
@@ -150,7 +286,9 @@ export default function App() {
             <div className="sb-user">
               <div
                 className="sb-av"
-                style={{ background: user.avatar_color || "var(--neon-blue)" }}
+                style={{
+                  background: user.avatar_color || "var(--neon-blue)",
+                }}
               >
                 {(user.display_name || "?")[0].toUpperCase()}
               </div>
@@ -161,7 +299,7 @@ export default function App() {
               </div>
             </div>
 
-            <button className="sb-logout" onClick={logout}>
+            <button type="button" className="sb-logout" onClick={logout}>
               Çıkış
             </button>
           </div>
@@ -175,7 +313,9 @@ export default function App() {
                 placeholder="Şarkı, sanatçı, albüm ara..."
                 onChange={(e) => {
                   window.dispatchEvent(
-                    new CustomEvent("hm-search", { detail: e.target.value })
+                    new CustomEvent("hm-search", {
+                      detail: e.target.value,
+                    })
                   );
                 }}
               />
@@ -186,18 +326,51 @@ export default function App() {
 
               <Notifications />
 
-              <button className="btn btn-ghost" onClick={() => go("upload")}>
-                ♪ Yükle
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => go("upload")}
+              >
+                Yükle
               </button>
 
-              <button className="btn btn-grad" onClick={() => go("import")}>
-                + Linkten ekle
+              <button
+                type="button"
+                className="btn btn-grad"
+                onClick={() => go("import")}
+              >
+                Linkten ekle
               </button>
             </div>
           </header>
 
-          <div className="page">{pages[effectiveRoute] || pages.home}</div>
+          <div className="page">
+            <PageErrorBoundary routeKey={effectiveRoute}>
+              {pages[effectiveRoute] || pages.home}
+            </PageErrorBoundary>
+          </div>
         </main>
+
+        <nav className="mobile-nav">
+          {nav.slice(0, 5).map((item) => {
+            const Icon = item.Icon;
+            const active = effectiveRoute === item.key;
+
+            return (
+              <button
+                key={item.key}
+                type="button"
+                className={active ? "on" : ""}
+                onClick={() => go(item.key)}
+              >
+                <span>
+                  <Icon />
+                </span>
+                <i>{item.label}</i>
+              </button>
+            );
+          })}
+        </nav>
 
         <PlayerBar />
       </div>
