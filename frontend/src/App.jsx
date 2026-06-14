@@ -129,3 +129,45 @@ export default function App() {
     </PlayerProvider>
   );
 }
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import BottomNav from "./components/BottomNav";
+
+function HomePage() {
+  return <div className="page-box">Home Page</div>;
+}
+
+function ProfilePage() {
+  return <div className="page-box">Profile Page</div>;
+}
+
+function MessagesPage() {
+  return <div className="page-box">Messages Page</div>;
+}
+
+function GalleryPage() {
+  return <div className="page-box">Gallery Page</div>;
+}
+
+function SettingsPage() {
+  return <div className="page-box">Settings Page</div>;
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <div className="hm-app-shell">
+        <div className="hm-page-content">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/messages" element={<MessagesPage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Routes>
+        </div>
+
+        <BottomNav />
+      </div>
+    </BrowserRouter>
+  );
+}
