@@ -14,21 +14,6 @@ services:
       timeout: 5s
       retries: 10
 
-  metube:
-    image: ghcr.io/alexta69/metube:latest
-    restart: unless-stopped
-    environment:
-      DOWNLOAD_DIR: /downloads
-      AUDIO_DOWNLOAD_DIR: /downloads/audio
-      DEFAULT_THEME: dark
-      DELETE_FILE_ON_TRASHCAN: "false"
-      CUSTOM_DIRS: "true"
-      CREATE_CUSTOM_DIRS: "true"
-    volumes:
-      - metube_downloads:/downloads
-    expose:
-      - "8081"
-
   backend:
     build: ./backend
     restart: unless-stopped
@@ -38,17 +23,14 @@ services:
       STORAGE_DRIVER: local
       UPLOAD_DIR: /app/uploads
       MAX_FILE_MB: 50
-      METUBE_URL: http://metube:8081
+      METUBE_URL: ${METUBE_URL:-https://metube.hawarserver.com}
       METUBE_AUDIO_DIR: /metube-downloads/audio
       METUBE_DOWNLOAD_DIR: /metube-downloads
     volumes:
       - uploads_data:/app/uploads
-      - metube_downloads:/metube-downloads:ro
     depends_on:
       postgres:
         condition: service_healthy
-      metube:
-        condition: service_started
     expose:
       - "8000"
 
@@ -66,4 +48,3 @@ services:
 volumes:
   pg_data:
   uploads_data:
-  metube_downloads:
