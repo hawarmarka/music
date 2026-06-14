@@ -25,19 +25,43 @@ async function req(path, { method = "GET", body, isForm = false } = {}) {
     headers["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(`${BASE}${path}`, {
-    method,
-    headers,
-    body: isForm ? body : body ? JSON.stringify(body) : undefined,
-  });
+  let res;
+
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      method,
+      headers,
+      body: isForm ? body : body ? JSON.stringify(body) : undefined,
+    });
+  } catch (e) {
+    throw new Error(`Sunucuya bağlanılamadı: ${e.message}`);
+  }
 
   if (!res.ok) {
-    let msg = "Bir hata oluştu";
+    let msg = `HTTP ${res.status}`;
+
+    const contentType = res.headers.get("content-type") || "";
 
     try {
-      const data = await res.json();
-      msg = data.detail || data.message || msg;
-    } catch {}
+      if (contentType.includes("application/json")) {
+        const data = await res.json();
+        msg = data.detail || data.message || JSON.stringify(data);
+      } else {
+        const text = await res.text();
+
+        if (text.includes("Bad Gateway")) {
+          msg = "Backend çalışmıyor veya proxy backend'e bağlanamıyor.";
+        } else if (text.includes("no available server")) {
+          msg = "Coolify çalışan servis bulamıyor. Container durmuş olabilir.";
+        } else if (text.includes("Not Found")) {
+          msg = "API yolu bulunamadı. Nginx /api yönlendirmesi hatalı olabilir.";
+        } else {
+          msg = text || msg;
+        }
+      }
+    } catch {
+      msg = `HTTP ${res.status} - cevap okunamadı`;
+    }
 
     throw new Error(msg);
   }
