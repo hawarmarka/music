@@ -71,6 +71,12 @@ class ImportLinkIn(BaseModel):
     license_confirmed: bool = False
     visibility: str = "family"
 
+class MetubeImportIn(BaseModel):
+    url: str
+    title: Optional[str] = None
+    artist: Optional[str] = None
+    license_confirmed: bool = False
+    visibility: str = "family"
 
 class SongEditIn(BaseModel):
     title: Optional[str] = None
