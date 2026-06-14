@@ -40,6 +40,7 @@ export const api = {
   },
   upload: (fd) => req("/api/songs/upload", { method: "POST", body: fd, isForm: true }),
   importLink: (d) => req("/api/songs/import", { method: "POST", body: d }),
+  metubeImport: (d) => req("/api/metube/import", { method: "POST", body: d }),
   editSong: (id, d) => req(`/api/songs/${id}`, { method: "PATCH", body: d }),
   deleteSong: (id) => req(`/api/songs/${id}`, { method: "DELETE" }),
   favorite: (id) => req(`/api/songs/${id}/favorite`, { method: "POST" }),
