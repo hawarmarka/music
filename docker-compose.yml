@@ -34,7 +34,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://hawar:hawar@postgres:5432/hawarmusic
-      JWT_SECRET: ${JWT_SECRET:-hawarmusic-super-secret-2026}
+      JWT_SECRET: ${JWT_SECRET:-hawarmusic-2026-cok-gizli-bir-key}
       STORAGE_DRIVER: local
       UPLOAD_DIR: /app/uploads
       MAX_FILE_MB: 50
