@@ -406,6 +406,232 @@ async def import_link(data: ImportLinkIn, user=Depends(core.get_current)):
         return song_dict(dict(row))
 
 
+# ============================================================ METUBE İLE MP3 İNDİR + KÜTÜPHANEYE EKLE
+def _safe_suffix(path: Path) -> bool:
+    return path.suffix.lower() in {".mp3", ".m4a", ".wav", ".flac", ".ogg", ".aac"}
+
+
+async def _wait_for_metube_file(prefix: str, timeout_seconds: int = 180) -> Optional[Path]:
+    audio_dir = Path(os.environ.get("METUBE_AUDIO_DIR", "/metube-downloads/audio"))
+    download_dir = Path(os.environ.get("METUBE_DOWNLOAD_DIR", "/metube-downloads"))
+
+    roots = []
+    if audio_dir.exists():
+        roots.append(audio_dir)
+    if download_dir.exists():
+        roots.append(download_dir)
+
+    for _ in range(timeout_seconds):
+        matches = []
+
+        for root in roots:
+            try:
+                for p in root.rglob(f"{prefix}*"):
+                    if p.is_file() and _safe_suffix(p):
+                        matches.append(p)
+            except Exception:
+                pass
+
+        if matches:
+            latest = max(matches, key=lambda x: x.stat().st_mtime)
+
+            try:
+                size_1 = latest.stat().st_size
+                await asyncio.sleep(1)
+                size_2 = latest.stat().st_size
+
+                if size_1 == size_2 and size_2 > 0:
+                    return latest
+            except Exception:
+                pass
+
+        await asyncio.sleep(1)
+
+    return None
+
+
+@app.post("/api/metube/import")
+async def metube_import(data: MetubeImportIn, user=Depends(core.get_current)):
+    if not data.license_confirmed:
+        raise HTTPException(
+            400,
+            "Bu içeriği indirme/yükleme hakkına sahip olduğunuzu onaylamalısınız"
+        )
+
+    metube_url = os.environ.get("METUBE_URL", "http://metube:8081").rstrip("/")
+    prefix = f"hm-{uuid.uuid4().hex}-"
+
+    payload = {
+        "url": data.url,
+        "quality": "best",
+        "format": "mp3",
+        "download_type": "audio",
+        "auto_start": True,
+        "playlist_item_limit": 1,
+        "custom_name_prefix": prefix
+    }
+
+    async with core.pool().acquire() as con:
+        job = await con.fetchrow(
+            "INSERT INTO import_jobs (family_id,user_id,source_url) VALUES ($1,$2,$3) RETURNING id",
+            user["family_id"],
+            user["id"],
+            data.url
+        )
+        job_id = job["id"]
+
+    try:
+        import httpx
+
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.post(f"{metube_url}/add", json=payload)
+
+        if response.status_code >= 400:
+            async with core.pool().acquire() as con:
+                await con.execute(
+                    "UPDATE import_jobs SET status='failed', error=$1 WHERE id=$2",
+                    response.text[:500],
+                    job_id
+                )
+
+            raise HTTPException(
+                502,
+                f"MeTube indirmeyi kabul etmedi: {response.text[:300]}"
+            )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        async with core.pool().acquire() as con:
+            await con.execute(
+                "UPDATE import_jobs SET status='failed', error=$1 WHERE id=$2",
+                str(e)[:500],
+                job_id
+            )
+
+        raise HTTPException(502, f"MeTube bağlantısı kurulamadı: {e}")
+
+    downloaded = await _wait_for_metube_file(prefix, timeout_seconds=180)
+
+    if not downloaded:
+        async with core.pool().acquire() as con:
+            await con.execute(
+                "UPDATE import_jobs SET status='queued', error=$1 WHERE id=$2",
+                "MeTube indirmeyi başlattı ama dosya henüz tamamlanmadı.",
+                job_id
+            )
+
+        return {
+            "queued": True,
+            "notice": "MeTube indirmeyi başlattı. Dosya büyükse biraz sürebilir; kısa süre sonra tekrar kontrol edin."
+        }
+
+    try:
+        audio = downloaded.read_bytes()
+    except Exception as e:
+        async with core.pool().acquire() as con:
+            await con.execute(
+                "UPDATE import_jobs SET status='failed', error=$1 WHERE id=$2",
+                str(e)[:500],
+                job_id
+            )
+
+        raise HTTPException(500, f"MeTube dosyası okunamadı: {e}")
+
+    async with core.pool().acquire() as con:
+        s = await con.fetchrow(
+            "SELECT max_file_mb FROM settings WHERE family_id=$1",
+            user["family_id"]
+        )
+
+    max_mb = s["max_file_mb"] if s else core.DEFAULT_MAX_FILE_MB
+
+    if len(audio) > max_mb * 1024 * 1024:
+        async with core.pool().acquire() as con:
+            await con.execute(
+                "UPDATE import_jobs SET status='failed', error=$1 WHERE id=$2",
+                f"Dosya çok büyük. Limit: {max_mb} MB",
+                job_id
+            )
+
+        raise HTTPException(413, f"Dosya çok büyük. Limit: {max_mb} MB")
+
+    ext = downloaded.suffix.lower() or ".mp3"
+    meta = read_audio_meta(audio, ext)
+
+    title = data.title or meta.get("title") or downloaded.stem.replace(prefix, "").strip() or "MeTube şarkısı"
+    artist = data.artist or meta.get("artist", "")
+    album = meta.get("album", "")
+    duration = meta.get("duration", 0)
+
+    key = storage.new_key(user["family_id"], ext)
+    store.save_bytes(key, audio)
+
+    cover_key = None
+    cover_bytes = meta.get("cover")
+
+    if cover_bytes:
+        cover_key = storage.new_key(user["family_id"], ".jpg")
+        store.save_bytes(cover_key, cover_bytes)
+
+    async with core.pool().acquire() as con:
+        row = await con.fetchrow(
+            """INSERT INTO songs (
+                family_id,
+                uploaded_by,
+                title,
+                artist,
+                album,
+                duration,
+                file_path,
+                cover_path,
+                cover_gradient,
+                source_type,
+                source_url,
+                is_downloadable,
+                license_confirmed,
+                visibility,
+                file_size
+              )
+              VALUES (
+                $1,$2,$3,$4,$5,$6,$7,$8,$9,
+                'metube',$10,true,true,$11,$12
+              )
+              RETURNING *,
+                (SELECT display_name FROM users WHERE id=$2) AS uploader_name""",
+            user["family_id"],
+            user["id"],
+            title,
+            artist,
+            album,
+            duration,
+            key,
+            cover_key,
+            storage.gradient_for(title),
+            data.url,
+            data.visibility,
+            len(audio)
+        )
+
+        await con.execute(
+            "UPDATE import_jobs SET status='done', result_song=$1 WHERE id=$2",
+            row["id"],
+            job_id
+        )
+
+        await core.audit(
+            con,
+            user["family_id"],
+            user["id"],
+            "song.metube_import",
+            title
+        )
+
+    d = song_dict(dict(row))
+    d["notice"] = "MeTube indirdi ve şarkı HawarMusic kütüphanesine eklendi."
+    return d
+
+
 @app.get("/api/songs/{song_id}/stream")
 async def stream_song(song_id: str, user=Depends(core.get_current_flexible)):
     async with core.pool().acquire() as con:
