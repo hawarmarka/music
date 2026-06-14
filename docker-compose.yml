@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hawar
+      POSTGRES_PASSWORD: hawar
+      POSTGRES_DB: hawarmusic
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hawar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://hawar:hawar@postgres:5432/hawarmusic
+      JWT_SECRET: ${JWT_SECRET:-degistir-bu-anahtari-uretimde}
+      STORAGE_DRIVER: local
+      UPLOAD_DIR: /app/uploads
+      MAX_FILE_MB: 50
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Üretimde backend'in public adresi (ör. https://api.hawarmusic.hawarserver.com)
+        # Reverse-proxy ile /api aynı domaine düşüyorsa boş bırak.
+        VITE_API_URL: ${VITE_API_URL:-}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  pg_data:
+  uploads_data:

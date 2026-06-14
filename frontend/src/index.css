@@ -1,0 +1,97 @@
+/* ============================================================
+   HawarMusic by HawarSoftware
+   "Neon Gece" tasarım sistemi
+   Koyu lacivert/siyah · neon mavi-mor gradient · cam efekti
+   ============================================================ */
+
+:root {
+  /* Zemin katmanları */
+  --bg:        #070912;   /* en koyu */
+  --bg-2:      #0d1020;   /* panel */
+  --bg-3:      #141830;   /* yüzey */
+  --glass:     rgba(20, 24, 48, 0.55);
+  --glass-brd: rgba(120, 140, 255, 0.12);
+
+  /* Neon aksanlar */
+  --neon-blue: #5b8cff;
+  --neon-purple: #a855f7;
+  --neon-cyan: #22d3ee;
+  --grad:      linear-gradient(135deg, #5b8cff 0%, #a855f7 100%);
+  --grad-cyan: linear-gradient(135deg, #22d3ee 0%, #5b8cff 100%);
+
+  /* Metin */
+  --text:      #eef1ff;
+  --text-soft: #9aa3c8;
+  --text-dim:  #5d6585;
+
+  --ok:   #4ade80;
+  --warn: #fbbf24;
+  --err:  #f87171;
+
+  --r-lg: 22px;
+  --r:    16px;
+  --r-sm: 11px;
+  --shadow: 0 24px 60px -20px rgba(0,0,0,.7);
+  --glow:   0 0 24px -4px rgba(91,140,255,.5);
+
+  --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --player-h: 90px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background:
+    radial-gradient(1100px 600px at 85% -5%, rgba(168,85,247,.16), transparent 55%),
+    radial-gradient(900px 600px at -5% 10%, rgba(91,140,255,.14), transparent 50%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select, textarea { font: inherit; }
+a { color: inherit; text-decoration: none; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 9px; }
+::-webkit-scrollbar-thumb:hover { background: #1d2344; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Yardımcı tipografi */
+.brand-word {
+  font-weight: 800; letter-spacing: -.02em;
+  background: var(--grad); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Butonlar */
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem; justify-content: center;
+  padding: .7rem 1.2rem; border-radius: var(--r-sm); font-weight: 600; font-size: .92rem;
+  transition: .18s; white-space: nowrap;
+}
+.btn-grad { background: var(--grad); color: #fff; }
+.btn-grad:hover { transform: translateY(-1px); box-shadow: var(--glow); }
+.btn-ghost { background: var(--bg-3); color: var(--text); border: 1px solid var(--glass-brd); }
+.btn-ghost:hover { border-color: var(--neon-blue); }
+.btn:disabled { opacity: .55; cursor: default; transform: none; }
+.btn-block { width: 100%; }
+
+/* Form alanları */
+.f-label { display: block; font-size: .8rem; color: var(--text-soft); margin-bottom: .4rem; }
+.f-input {
+  width: 100%; padding: .8rem 1rem; background: var(--bg); color: var(--text);
+  border: 1px solid var(--glass-brd); border-radius: var(--r-sm); font-size: .95rem; transition: .18s;
+}
+.f-input:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 0 3px rgba(91,140,255,.16); }
+
+.error-box { background: rgba(248,113,113,.12); color: var(--err); padding: .7rem 1rem;
+  border-radius: var(--r-sm); font-size: .87rem; }
+.ok-box { background: rgba(74,222,128,.12); color: var(--ok); padding: .7rem 1rem;
+  border-radius: var(--r-sm); font-size: .87rem; }
+
+.glass {
+  background: var(--glass); backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-brd); border-radius: var(--r);
+}
