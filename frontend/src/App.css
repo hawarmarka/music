@@ -344,3 +344,339 @@
   .song-modal { padding: 1rem; }
   .modal-cover { width: 78px; height: 78px; }
 }
+/* ============================================================
+   Yeni HawarMusic Login / Register ekranı
+   ============================================================ */
+
+.hm-auth-page {
+  min-height: 100vh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background:
+    radial-gradient(circle at top left, rgba(168, 85, 247, 0.18), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(91, 140, 255, 0.20), transparent 34%),
+    linear-gradient(135deg, #f8f9ff 0%, #ffffff 45%, #f5f0ff 100%);
+  color: #1f2340;
+}
+
+.hm-auth-card {
+  width: min(920px, 100%);
+  min-height: 560px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px rgba(31, 35, 64, 0.22),
+    0 8px 24px rgba(31, 35, 64, 0.10);
+}
+
+.hm-auth-form-side {
+  padding: 58px 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.hm-auth-mobile-logo {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: #6d55d9;
+}
+
+.hm-auth-mobile-logo span {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #4f8cff, #8f4df8);
+  color: #fff;
+}
+
+.hm-auth-form-side h1 {
+  color: #17172f;
+  font-size: 30px;
+  font-weight: 800;
+  margin-bottom: 18px;
+  letter-spacing: -0.03em;
+}
+
+.hm-socials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.hm-socials button {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid #e4e6f1;
+  background: #ffffff;
+  color: #656b82;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(31, 35, 64, 0.06);
+  cursor: default;
+}
+
+.hm-auth-muted {
+  color: #8d92a6;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.hm-auth-switches {
+  width: 100%;
+  max-width: 340px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 5px;
+  margin-bottom: 14px;
+  background: #f0f1f7;
+  border-radius: 999px;
+}
+
+.hm-auth-switches button {
+  padding: 10px 8px;
+  border-radius: 999px;
+  color: #777d96;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hm-auth-switches button.active {
+  background: #ffffff;
+  color: #6c4fe0;
+  box-shadow: 0 8px 18px rgba(31, 35, 64, 0.08);
+}
+
+.hm-auth-fields {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.hm-auth-fields input {
+  width: 100%;
+  height: 46px;
+  border: 0;
+  outline: 0;
+  border-radius: 8px;
+  background: #f2f3f7;
+  color: #17172f;
+  padding: 0 16px;
+  font-size: 13px;
+  transition: 0.18s ease;
+}
+
+.hm-auth-fields input::placeholder {
+  color: #9ba0b3;
+}
+
+.hm-auth-fields input:focus {
+  background: #ffffff;
+  box-shadow:
+    0 0 0 2px rgba(111, 84, 226, 0.22),
+    0 10px 22px rgba(31, 35, 64, 0.08);
+}
+
+.hm-forgot {
+  margin-top: 14px;
+  color: #858ba1;
+  font-size: 12px;
+}
+
+.hm-forgot:hover {
+  color: #6c4fe0;
+}
+
+.hm-auth-error {
+  width: 100%;
+  max-width: 340px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(248, 113, 113, 0.12);
+  color: #e5484d;
+  font-size: 12px;
+  text-align: center;
+}
+
+.hm-main-auth-btn {
+  margin-top: 18px;
+  min-width: 150px;
+  height: 42px;
+  padding: 0 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #4f8cff 0%, #8f4df8 100%);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow: 0 12px 28px rgba(111, 84, 226, 0.35);
+  transition: 0.18s ease;
+}
+
+.hm-main-auth-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 34px rgba(111, 84, 226, 0.42);
+}
+
+.hm-main-auth-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+}
+
+.hm-auth-purple-side {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.18), transparent 24%),
+    linear-gradient(135deg, #4f8cff 0%, #8f4df8 100%);
+  display: grid;
+  place-items: center;
+  padding: 48px;
+}
+
+.hm-auth-purple-side::before,
+.hm-auth-purple-side::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.hm-auth-purple-side::before {
+  width: 220px;
+  height: 220px;
+  top: -80px;
+  right: -70px;
+}
+
+.hm-auth-purple-side::after {
+  width: 170px;
+  height: 170px;
+  bottom: -70px;
+  left: -50px;
+}
+
+.hm-auth-purple-content {
+  position: relative;
+  z-index: 1;
+  max-width: 310px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.hm-purple-logo {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(12px);
+  font-size: 26px;
+}
+
+.hm-auth-purple-content h2 {
+  font-size: 30px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  letter-spacing: -0.03em;
+}
+
+.hm-auth-purple-content p {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.hm-outline-auth-btn {
+  height: 42px;
+  min-width: 140px;
+  padding: 0 28px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.86);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  transition: 0.18s ease;
+}
+
+.hm-outline-auth-btn:hover {
+  background: #ffffff;
+  color: #7654e9;
+}
+
+@media (max-width: 820px) {
+  .hm-auth-page {
+    padding: 18px;
+  }
+
+  .hm-auth-card {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .hm-auth-form-side {
+    padding: 38px 24px;
+  }
+
+  .hm-auth-mobile-logo {
+    display: flex;
+  }
+
+  .hm-auth-purple-side {
+    padding: 36px 24px;
+    min-height: 250px;
+  }
+
+  .hm-auth-purple-content h2 {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 460px) {
+  .hm-auth-form-side {
+    padding: 34px 18px;
+  }
+
+  .hm-auth-card {
+    border-radius: 16px;
+  }
+
+  .hm-auth-form-side h1 {
+    font-size: 26px;
+  }
+
+  .hm-auth-switches {
+    grid-template-columns: 1fr;
+    border-radius: 18px;
+  }
+
+  .hm-auth-switches button {
+    border-radius: 14px;
+  }
+}
