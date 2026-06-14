@@ -28,8 +28,6 @@ services:
       - metube_downloads:/downloads
     expose:
       - "8081"
-    networks:
-      - hawarmusic_net
 
   backend:
     build: ./backend
@@ -53,8 +51,6 @@ services:
         condition: service_started
     expose:
       - "8000"
-    networks:
-      - hawarmusic_net
 
   frontend:
     build:
@@ -66,14 +62,8 @@ services:
       - backend
     expose:
       - "80"
-    networks:
-      - hawarmusic_net
 
 volumes:
   pg_data:
   uploads_data:
   metube_downloads:
-
-networks:
-  hawarmusic_net:
-    driver: bridge
