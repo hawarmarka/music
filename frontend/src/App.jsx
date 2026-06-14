@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
 import { api, getToken, clearToken } from "./lib/api";
 import { PlayerProvider } from "./lib/player";
+import {
+  FiHome,
+  FiMusic,
+  FiList,
+  FiHeart,
+  FiDownload,
+  FiEdit3,
+  FiUsers,
+  FiSettings,
+  FiGrid,
+} from "react-icons/fi";
+
 import Auth from "./pages/Auth";
 import PlayerBar from "./components/PlayerBar";
 import Notifications from "./components/Notifications";
@@ -17,14 +29,14 @@ import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
 
 const NAV = [
-  { key: "home", label: "Ana Sayfa", icon: "⌂" },
-  { key: "library", label: "Kütüphane", icon: "≣" },
-  { key: "playlists", label: "Playlistler", icon: "≡" },
-  { key: "favorites", label: "Favoriler", icon: "♥" },
-  { key: "offline", label: "Offline", icon: "⤓" },
-  { key: "requests", label: "İstekler", icon: "✎" },
-  { key: "family", label: "Aile", icon: "⚇" },
-  { key: "settings", label: "Ayarlar", icon: "⚙" },
+  { key: "home", label: "Ana Sayfa", Icon: FiHome },
+  { key: "library", label: "Kütüphane", Icon: FiMusic },
+  { key: "playlists", label: "Playlistler", Icon: FiList },
+  { key: "favorites", label: "Favoriler", Icon: FiHeart },
+  { key: "offline", label: "Offline", Icon: FiDownload },
+  { key: "requests", label: "İstekler", Icon: FiEdit3 },
+  { key: "family", label: "Aile", Icon: FiUsers },
+  { key: "settings", label: "Ayarlar", Icon: FiSettings },
 ];
 
 export default function App() {
@@ -36,24 +48,55 @@ export default function App() {
   useEffect(() => {
     const onHash = () => setRoute(location.hash.slice(1) || "home");
     window.addEventListener("hashchange", onHash);
-    const on = () => setOnline(true), off = () => setOnline(false);
-    window.addEventListener("online", on); window.addEventListener("offline", off);
-    return () => { window.removeEventListener("hashchange", onHash);
-      window.removeEventListener("online", on); window.removeEventListener("offline", off); };
+
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
   }, []);
 
   useEffect(() => {
-    if (!getToken()) { setLoading(false); return; }
-    api.me().then(setUser).catch(() => clearToken()).finally(() => setLoading(false));
+    if (!getToken()) {
+      setLoading(false);
+      return;
+    }
+
+    api
+      .me()
+      .then(setUser)
+      .catch(() => clearToken())
+      .finally(() => setLoading(false));
   }, []);
 
-  function go(key) { location.hash = key; setRoute(key); }
-  function logout() { clearToken(); setUser(null); }
+  function go(key) {
+    location.hash = key;
+    setRoute(key);
+  }
 
-  if (loading) return <div className="splash"><span className="brand-word">HawarMusic</span></div>;
-  if (!user) return <Auth onAuth={setUser} />;
+  function logout() {
+    clearToken();
+    setUser(null);
+  }
 
-  // İnternet yokken sadece offline sayfası
+  if (loading) {
+    return (
+      <div className="splash">
+        <span className="brand-word">HawarMusic</span>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Auth onAuth={setUser} />;
+  }
+
   const effectiveRoute = !online && route !== "offline" ? "offline" : route;
 
   const pages = {
@@ -71,28 +114,58 @@ export default function App() {
   };
 
   const nav = [...NAV];
-  if (user.role === "admin") nav.splice(7, 0, { key: "admin", label: "Admin", icon: "▦" });
+
+  if (user.role === "admin") {
+    nav.splice(7, 0, { key: "admin", label: "Admin", Icon: FiGrid });
+  }
+
+  const bottomNav = nav.slice(0, 5);
 
   return (
     <PlayerProvider>
       <div className="shell">
         <aside className="sidebar">
-          <div className="sb-logo"><span className="brand-word">HawarMusic</span></div>
+          <div className="sb-logo">
+            <span className="brand-word">HawarMusic</span>
+          </div>
+
           <nav className="sb-nav">
-            {nav.map((n) => (
-              <button key={n.key} className={effectiveRoute === n.key ? "on" : ""} onClick={() => go(n.key)}>
-                <span className="sb-ic">{n.icon}</span> {n.label}
-              </button>
-            ))}
+            {nav.map((n) => {
+              const Icon = n.Icon;
+
+              return (
+                <button
+                  key={n.key}
+                  className={effectiveRoute === n.key ? "on" : ""}
+                  onClick={() => go(n.key)}
+                >
+                  <span className="sb-ic">
+                    <Icon />
+                  </span>
+                  {n.label}
+                </button>
+              );
+            })}
           </nav>
+
           <div className="sb-foot">
             <div className="sb-user">
-              <div className="sb-av" style={{ background: user.avatar_color || "var(--neon-blue)" }}>
+              <div
+                className="sb-av"
+                style={{ background: user.avatar_color || "var(--neon-blue)" }}
+              >
                 {(user.display_name || "?")[0].toUpperCase()}
               </div>
-              <div className="sb-uinfo"><strong>{user.display_name}</strong><span>{user.role === "admin" ? "Yönetici" : "Üye"}</span></div>
+
+              <div className="sb-uinfo">
+                <strong>{user.display_name}</strong>
+                <span>{user.role === "admin" ? "Yönetici" : "Üye"}</span>
+              </div>
             </div>
-            <button className="sb-logout" onClick={logout}>Çıkış</button>
+
+            <button className="sb-logout" onClick={logout}>
+              Çıkış
+            </button>
           </div>
         </aside>
 
@@ -100,74 +173,57 @@ export default function App() {
           <header className="topbar">
             <div className="tb-search">
               <span>⌕</span>
-              <input placeholder="Şarkı, sanatçı, albüm ara..." onChange={(e) => {
-                window.dispatchEvent(new CustomEvent("hm-search", { detail: e.target.value }));
-              }} />
+              <input
+                placeholder="Şarkı, sanatçı, albüm ara..."
+                onChange={(e) => {
+                  window.dispatchEvent(
+                    new CustomEvent("hm-search", { detail: e.target.value })
+                  );
+                }}
+              />
             </div>
+
             <div className="tb-actions">
               {!online && <span className="tb-offline">Çevrimdışı</span>}
+
               <Notifications />
-              <button className="btn btn-ghost" onClick={() => go("upload")}>⤴ Yükle</button>
-              <button className="btn btn-grad" onClick={() => go("import")}>+ Linkten ekle</button>
+
+              <button className="btn btn-ghost" onClick={() => go("upload")}>
+                ⤴ Yükle
+              </button>
+
+              <button className="btn btn-grad" onClick={() => go("import")}>
+                + Linkten ekle
+              </button>
             </div>
           </header>
 
           <div className="page">{pages[effectiveRoute] || pages.home}</div>
         </main>
 
-        {/* Mobil alt navigasyon */}
-        <nav className="mobile-nav">
-          {nav.slice(0, 5).map((n) => (
-            <button key={n.key} className={effectiveRoute === n.key ? "on" : ""} onClick={() => go(n.key)}>
-              <span>{n.icon}</span><i>{n.label}</i>
-            </button>
-          ))}
+        <nav className="hm-bottom-nav-wrap">
+          <div className="hm-bottom-nav">
+            {bottomNav.map((n) => {
+              const Icon = n.Icon;
+
+              return (
+                <button
+                  key={n.key}
+                  className={`hm-nav-item ${effectiveRoute === n.key ? "active" : ""}`}
+                  onClick={() => go(n.key)}
+                >
+                  <span className="hm-nav-icon">
+                    <Icon />
+                  </span>
+                  <span className="hm-nav-text">{n.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </nav>
 
         <PlayerBar />
       </div>
     </PlayerProvider>
-  );
-}
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import BottomNav from "./components/BottomNav";
-
-function HomePage() {
-  return <div className="page-box">Home Page</div>;
-}
-
-function ProfilePage() {
-  return <div className="page-box">Profile Page</div>;
-}
-
-function MessagesPage() {
-  return <div className="page-box">Messages Page</div>;
-}
-
-function GalleryPage() {
-  return <div className="page-box">Gallery Page</div>;
-}
-
-function SettingsPage() {
-  return <div className="page-box">Settings Page</div>;
-}
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <div className="hm-app-shell">
-        <div className="hm-page-content">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/messages" element={<MessagesPage />} />
-            <Route path="/gallery" element={<GalleryPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-          </Routes>
-        </div>
-
-        <BottomNav />
-      </div>
-    </BrowserRouter>
   );
 }
