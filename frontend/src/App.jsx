@@ -119,8 +119,6 @@ export default function App() {
     nav.splice(7, 0, { key: "admin", label: "Admin", Icon: FiGrid });
   }
 
-  const bottomNav = nav.slice(0, 5);
-
   return (
     <PlayerProvider>
       <div className="shell">
@@ -142,7 +140,7 @@ export default function App() {
                   <span className="sb-ic">
                     <Icon />
                   </span>
-                  {n.label}
+                  <span>{n.label}</span>
                 </button>
               );
             })}
@@ -189,7 +187,7 @@ export default function App() {
               <Notifications />
 
               <button className="btn btn-ghost" onClick={() => go("upload")}>
-                ⤴ Yükle
+                ♪ Yükle
               </button>
 
               <button className="btn btn-grad" onClick={() => go("import")}>
@@ -200,27 +198,6 @@ export default function App() {
 
           <div className="page">{pages[effectiveRoute] || pages.home}</div>
         </main>
-
-        <nav className="hm-bottom-nav-wrap">
-          <div className="hm-bottom-nav">
-            {bottomNav.map((n) => {
-              const Icon = n.Icon;
-
-              return (
-                <button
-                  key={n.key}
-                  className={`hm-nav-item ${effectiveRoute === n.key ? "active" : ""}`}
-                  onClick={() => go(n.key)}
-                >
-                  <span className="hm-nav-icon">
-                    <Icon />
-                  </span>
-                  <span className="hm-nav-text">{n.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
 
         <PlayerBar />
       </div>
