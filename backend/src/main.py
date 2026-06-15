@@ -406,70 +406,77 @@ async def import_link(data: ImportLinkIn, user=Depends(core.get_current)):
         return song_dict(dict(row))
 
 
-# ============================================================ METUBE İLE MP3 İNDİR + KÜTÜPHANEYE EKLE
-def _safe_suffix(path: Path) -> bool:
-    return path.suffix.lower() in {".mp3", ".m4a", ".wav", ".flac", ".ogg", ".aac"}
+# ============================================================ LİNKTEN MP3 İNDİR + KÜTÜPHANEYE EKLE
+def _download_audio_with_ytdlp(url: str) -> dict:
+    """
+    Backend içinde yt-dlp + ffmpeg ile ses indirir.
+    MeTube container/domain/network kullanmaz.
+    """
+    import tempfile
+    from pathlib import Path
+    from yt_dlp import YoutubeDL
 
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp = Path(tmpdir)
 
-async def _wait_for_metube_file(prefix: str, timeout_seconds: int = 180) -> Optional[Path]:
-    audio_dir = Path(os.environ.get("METUBE_AUDIO_DIR", "/metube-downloads/audio"))
-    download_dir = Path(os.environ.get("METUBE_DOWNLOAD_DIR", "/metube-downloads"))
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "outtmpl": str(tmp / "%(id)s.%(ext)s"),
+            "noplaylist": True,
+            "quiet": True,
+            "no_warnings": True,
+            "prefer_ffmpeg": True,
+            "postprocessors": [
+                {
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                    "preferredquality": "192",
+                }
+            ],
+        }
 
-    roots = []
-    if audio_dir.exists():
-        roots.append(audio_dir)
-    if download_dir.exists():
-        roots.append(download_dir)
+        with YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
 
-    for _ in range(timeout_seconds):
-        matches = []
+        mp3_files = list(tmp.glob("*.mp3"))
 
-        for root in roots:
-            try:
-                for p in root.rglob(f"{prefix}*"):
-                    if p.is_file() and _safe_suffix(p):
-                        matches.append(p)
-            except Exception:
-                pass
+        if mp3_files:
+            audio_path = mp3_files[0]
+        else:
+            audio_files = []
 
-        if matches:
-            latest = max(matches, key=lambda x: x.stat().st_mtime)
+            for pattern in ["*.m4a", "*.webm", "*.opus", "*.aac", "*.ogg", "*.wav"]:
+                audio_files.extend(tmp.glob(pattern))
 
-            try:
-                size_1 = latest.stat().st_size
-                await asyncio.sleep(1)
-                size_2 = latest.stat().st_size
+            if not audio_files:
+                raise RuntimeError("İndirilen ses dosyası bulunamadı.")
 
-                if size_1 == size_2 and size_2 > 0:
-                    return latest
-            except Exception:
-                pass
+            audio_path = audio_files[0]
 
-        await asyncio.sleep(1)
+        audio_bytes = audio_path.read_bytes()
 
-    return None
+        return {
+            "audio": audio_bytes,
+            "ext": audio_path.suffix.lower() or ".mp3",
+            "title": info.get("title") or "",
+            "artist": info.get("artist") or info.get("uploader") or info.get("channel") or "",
+            "album": info.get("album") or "",
+            "duration": int(info.get("duration") or 0),
+            "source_url": info.get("webpage_url") or url,
+        }
 
 
 @app.post("/api/metube/import")
 async def metube_import(data: MetubeImportIn, user=Depends(core.get_current)):
+    """
+    Eski endpoint adını koruyoruz ki frontend bozulmasın.
+    Ama artık MeTube'a bağlanmaz; backend doğrudan yt-dlp ile indirir.
+    """
     if not data.license_confirmed:
         raise HTTPException(
             400,
             "Bu içeriği indirme/yükleme hakkına sahip olduğunuzu onaylamalısınız"
         )
-
-    metube_url = os.environ.get("METUBE_URL", "http://metube:8081").rstrip("/")
-    prefix = f"hm-{uuid.uuid4().hex}-"
-
-    payload = {
-        "url": data.url,
-        "quality": "best",
-        "format": "mp3",
-        "download_type": "audio",
-        "auto_start": True,
-        "playlist_item_limit": 1,
-        "custom_name_prefix": prefix
-    }
 
     async with core.pool().acquire() as con:
         job = await con.fetchrow(
@@ -480,71 +487,26 @@ async def metube_import(data: MetubeImportIn, user=Depends(core.get_current)):
         )
         job_id = job["id"]
 
-    try:
-        import httpx
-
-        async with httpx.AsyncClient(timeout=30) as client:
-            response = await client.post(f"{metube_url}/add", json=payload)
-
-        if response.status_code >= 400:
-            async with core.pool().acquire() as con:
-                await con.execute(
-                    "UPDATE import_jobs SET status='failed', error=$1 WHERE id=$2",
-                    response.text[:500],
-                    job_id
-                )
-
-            raise HTTPException(
-                502,
-                f"MeTube indirmeyi kabul etmedi: {response.text[:300]}"
-            )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        async with core.pool().acquire() as con:
-            await con.execute(
-                "UPDATE import_jobs SET status='failed', error=$1 WHERE id=$2",
-                str(e)[:500],
-                job_id
-            )
-
-        raise HTTPException(502, f"MeTube bağlantısı kurulamadı: {e}")
-
-    downloaded = await _wait_for_metube_file(prefix, timeout_seconds=180)
-
-    if not downloaded:
-        async with core.pool().acquire() as con:
-            await con.execute(
-                "UPDATE import_jobs SET status='queued', error=$1 WHERE id=$2",
-                "MeTube indirmeyi başlattı ama dosya henüz tamamlanmadı.",
-                job_id
-            )
-
-        return {
-            "queued": True,
-            "notice": "MeTube indirmeyi başlattı. Dosya büyükse biraz sürebilir; kısa süre sonra tekrar kontrol edin."
-        }
-
-    try:
-        audio = downloaded.read_bytes()
-    except Exception as e:
-        async with core.pool().acquire() as con:
-            await con.execute(
-                "UPDATE import_jobs SET status='failed', error=$1 WHERE id=$2",
-                str(e)[:500],
-                job_id
-            )
-
-        raise HTTPException(500, f"MeTube dosyası okunamadı: {e}")
-
-    async with core.pool().acquire() as con:
         s = await con.fetchrow(
             "SELECT max_file_mb FROM settings WHERE family_id=$1",
             user["family_id"]
         )
 
     max_mb = s["max_file_mb"] if s else core.DEFAULT_MAX_FILE_MB
+
+    try:
+        downloaded = await asyncio.to_thread(_download_audio_with_ytdlp, data.url)
+    except Exception as e:
+        async with core.pool().acquire() as con:
+            await con.execute(
+                "UPDATE import_jobs SET status='failed', error=$1 WHERE id=$2",
+                str(e)[:500],
+                job_id
+            )
+
+        raise HTTPException(400, f"İndirme başarısız: {e}")
+
+    audio = downloaded["audio"]
 
     if len(audio) > max_mb * 1024 * 1024:
         async with core.pool().acquire() as con:
@@ -556,13 +518,25 @@ async def metube_import(data: MetubeImportIn, user=Depends(core.get_current)):
 
         raise HTTPException(413, f"Dosya çok büyük. Limit: {max_mb} MB")
 
-    ext = downloaded.suffix.lower() or ".mp3"
+    ext = downloaded.get("ext") or ".mp3"
     meta = read_audio_meta(audio, ext)
 
-    title = data.title or meta.get("title") or downloaded.stem.replace(prefix, "").strip() or "MeTube şarkısı"
-    artist = data.artist or meta.get("artist", "")
-    album = meta.get("album", "")
-    duration = meta.get("duration", 0)
+    title = (
+        data.title
+        or meta.get("title")
+        or downloaded.get("title")
+        or "İndirilen şarkı"
+    )
+
+    artist = (
+        data.artist
+        or meta.get("artist")
+        or downloaded.get("artist")
+        or ""
+    )
+
+    album = meta.get("album") or downloaded.get("album") or ""
+    duration = meta.get("duration") or downloaded.get("duration") or 0
 
     key = storage.new_key(user["family_id"], ext)
     store.save_bytes(key, audio)
@@ -595,7 +569,7 @@ async def metube_import(data: MetubeImportIn, user=Depends(core.get_current)):
               )
               VALUES (
                 $1,$2,$3,$4,$5,$6,$7,$8,$9,
-                'metube',$10,true,true,$11,$12
+                'yt_dlp',$10,true,true,$11,$12
               )
               RETURNING *,
                 (SELECT display_name FROM users WHERE id=$2) AS uploader_name""",
@@ -608,7 +582,7 @@ async def metube_import(data: MetubeImportIn, user=Depends(core.get_current)):
             key,
             cover_key,
             storage.gradient_for(title),
-            data.url,
+            downloaded.get("source_url") or data.url,
             data.visibility,
             len(audio)
         )
@@ -623,12 +597,12 @@ async def metube_import(data: MetubeImportIn, user=Depends(core.get_current)):
             con,
             user["family_id"],
             user["id"],
-            "song.metube_import",
+            "song.ytdlp_import",
             title
         )
 
     d = song_dict(dict(row))
-    d["notice"] = "MeTube indirdi ve şarkı HawarMusic kütüphanesine eklendi."
+    d["notice"] = "Şarkı indirildi ve HawarMusic kütüphanesine eklendi."
     return d
 
 
