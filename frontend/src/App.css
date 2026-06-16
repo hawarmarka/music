@@ -5826,3 +5826,86 @@ textarea,
     border-radius: 14px !important;
   }
 }
+/* ============================================================
+   HAWARMUSIC SONGCARD FINAL CLICK OVERRIDE
+   Eski button hard fix kodunu ezer
+   ============================================================ */
+
+.sc-art-button,
+.sc-body-button {
+  all: unset !important;
+}
+
+.song-list-row {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: 58px minmax(0, 1fr) auto !important;
+  align-items: center !important;
+}
+
+.song-list-row .sc-art {
+  grid-column: 1 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.song-list-row .sc-body {
+  grid-column: 2 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.song-list-row .sc-actions {
+  grid-column: 3 !important;
+  position: relative !important;
+  z-index: 999 !important;
+  pointer-events: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.song-list-row .sc-actions button,
+.song-list-row .sc-menu-wrap,
+.song-list-row .sc-menu,
+.song-list-row .sc-menu button,
+.song-list-row .sc-menu a {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 1000 !important;
+}
+
+.song-list-row .sc-play,
+.song-list-row .sc-heart,
+.song-list-row .sc-dots {
+  cursor: pointer !important;
+  user-select: none !important;
+}
+
+.song-list-row .sc-menu {
+  z-index: 99999 !important;
+}
+
+/* Satır üstüne pseudo layer binmesini tamamen kapat */
+.song-list-row::before,
+.song-list-row::after,
+.song-list-row *::before,
+.song-list-row *::after {
+  pointer-events: none !important;
+}
+
+/* Menü içindeki butonlar pseudo kapatmadan etkilenmesin */
+.song-list-row .sc-menu button::before,
+.song-list-row .sc-menu button::after {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .song-list-row {
+    grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  }
+}
