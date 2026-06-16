@@ -4137,3 +4137,504 @@ textarea,
     font-size: 30px;
   }
 }
+/* ============================================================
+   HAWARMUSIC ADMIN FINAL DASHBOARD FIX
+   ============================================================ */
+
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-head {
+  margin-bottom: 0 !important;
+}
+
+.admin-sub {
+  display: block;
+  color: #8d98c3;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-stat-card {
+  min-height: 118px;
+  padding: 18px;
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.admin-stat-card span {
+  color: #9ca8d2;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.admin-stat-card strong {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 950;
+  line-height: 1.1;
+  margin-top: 8px;
+  word-break: break-word;
+}
+
+.admin-stat-card i {
+  color: #7f8bb7;
+  font-size: 12px;
+  font-style: normal;
+  margin-top: 6px;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-panel {
+  padding: 16px;
+  border-radius: 24px;
+  min-width: 0;
+}
+
+.admin-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.admin-panel-head h2 {
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.admin-panel-head span {
+  color: #8d98c3;
+  font-size: 12px;
+}
+
+.admin-mini-list,
+.admin-playlist-list,
+.admin-member-list,
+.admin-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-mini-row,
+.admin-playlist-row,
+.admin-member-row {
+  min-height: 58px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-mini-row div,
+.admin-playlist-row div:last-child,
+.admin-member-row div:last-child {
+  min-width: 0;
+}
+
+.admin-mini-row strong,
+.admin-playlist-row strong,
+.admin-member-row strong {
+  display: block;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 850;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-mini-row span,
+.admin-playlist-row span,
+.admin-member-row span {
+  display: block;
+  color: #8d98c3;
+  font-size: 12px;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-mini-row i {
+  color: #9ca8d2;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.admin-playlist-row,
+.admin-member-row {
+  justify-content: flex-start;
+}
+
+.admin-playlist-cover,
+.admin-member-avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 900;
+  background: linear-gradient(135deg, rgba(91,140,255,0.32), rgba(168,85,247,0.24));
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.admin-member-avatar {
+  border-radius: 999px;
+}
+
+.admin-log-list {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.admin-log-row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) 150px;
+  gap: 12px;
+  align-items: center;
+  min-height: 44px;
+  padding: 9px 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.admin-log-action {
+  color: #6ea8ff;
+  font-size: 12px;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-log-detail {
+  color: #dfe6ff;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-log-user {
+  color: #8d98c3;
+  font-size: 12px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-empty {
+  max-width: none !important;
+  width: 100%;
+  border-radius: 24px;
+  padding: 48px 24px !important;
+}
+
+@media (max-width: 1200px) {
+  .admin-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-log-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .admin-log-user {
+    text-align: left;
+  }
+}
+
+@media (max-width: 620px) {
+  .admin-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-stat-card {
+    min-height: 96px;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .admin-stat-card strong {
+    font-size: 22px;
+  }
+
+  .admin-panel {
+    padding: 12px;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 430px) {
+  .admin-stat-grid {
+    gap: 8px;
+  }
+
+  .admin-stat-card span,
+  .admin-stat-card i {
+    font-size: 11px;
+  }
+
+  .admin-stat-card strong {
+    font-size: 20px;
+  }
+}
+/* ============================================================
+   HAWARMUSIC OFFLINE FINAL PAGE FIX
+   ============================================================ */
+
+.offline-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.offline-head {
+  margin-bottom: 0 !important;
+}
+
+.offline-sub {
+  display: block;
+  color: #8d98c3;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.offline-warning {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: #fbbf24;
+  background: rgba(251,191,36,0.10);
+  border: 1px solid rgba(251,191,36,0.18);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.offline-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 22px;
+}
+
+.offline-search {
+  position: relative;
+  min-width: 0;
+}
+
+.offline-search span {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8d98c3;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.offline-search input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px 0 44px;
+  border-radius: 16px;
+  color: #ffffff;
+  background: rgba(255,255,255,0.065);
+  border: 1px solid rgba(255,255,255,0.10);
+  outline: none;
+}
+
+.offline-search input::placeholder {
+  color: #7f8bb7;
+}
+
+.offline-search input:focus {
+  border-color: rgba(110,168,255,0.42);
+  box-shadow: 0 0 0 3px rgba(91,140,255,0.10);
+}
+
+.offline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.offline-row {
+  min-height: 74px;
+  padding: 10px 12px;
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.offline-main {
+  min-width: 0;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-align: left !important;
+  color: #ffffff !important;
+}
+
+.offline-main:hover {
+  transform: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.offline-cover {
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: rgba(255,255,255,0.82);
+  font-size: 22px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.20);
+}
+
+.offline-text {
+  min-width: 0;
+}
+
+.offline-text strong {
+  display: block;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 850;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.offline-text span {
+  display: block;
+  color: #9ca8d2;
+  font-size: 12px;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.offline-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.offline-actions .btn {
+  min-height: 40px !important;
+  height: 40px !important;
+}
+
+.offline-empty {
+  max-width: none !important;
+  width: 100%;
+  border-radius: 24px;
+  padding: 48px 24px !important;
+}
+
+@media (max-width: 760px) {
+  .offline-head {
+    align-items: flex-start !important;
+  }
+
+  .offline-warning {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .offline-toolbar {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .offline-toolbar .btn {
+    width: 100%;
+  }
+
+  .offline-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .offline-actions {
+    width: 100%;
+  }
+
+  .offline-actions .btn {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .offline-cover {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 15px;
+  }
+
+  .offline-row {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .offline-actions .btn {
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 12px !important;
+  }
+}
