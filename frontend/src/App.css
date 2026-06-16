@@ -2444,3 +2444,757 @@ textarea,
     min-width: 40px !important;
   }
 }
+/* ============================================================
+   HAWARMUSIC SONGCARD FINAL LIST ROW FIX
+   ============================================================ */
+
+.song-list-row {
+  grid-template-columns: 58px minmax(0, 1fr) auto !important;
+}
+
+.song-list-row > .sc-body {
+  grid-column: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.song-list-row > .sc-actions {
+  grid-column: 3 !important;
+  align-self: center !important;
+  margin-top: 0 !important;
+}
+
+.sc-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: #7f8bb7;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sc-meta-line span {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  color: #dfe6ff;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.10);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.sc-meta-pill.sc-upload {
+  color: #cfe0ff;
+  background: rgba(91,140,255,0.16);
+  border-color: rgba(91,140,255,0.24);
+}
+
+.sc-meta-pill.sc-youtube {
+  color: #ffd0d0;
+  background: rgba(229,57,53,0.16);
+  border-color: rgba(229,57,53,0.22);
+}
+
+.sc-meta-pill.sc-spotify {
+  color: #caffe0;
+  background: rgba(30,215,96,0.15);
+  border-color: rgba(30,215,96,0.22);
+}
+
+.sc-meta-pill.sc-direct_url,
+.sc-meta-pill.sc-yt_dlp {
+  color: #c6f7ff;
+  background: rgba(34,211,238,0.14);
+  border-color: rgba(34,211,238,0.22);
+}
+
+.song-list-row .sc-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.song-list-row .sc-play,
+.song-list-row .sc-heart,
+.song-list-row .sc-dots {
+  position: static !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.song-list-row .sc-play {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  border-radius: 14px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.modal-cover {
+  overflow: hidden !important;
+}
+
+.modal-cover img,
+.modal-cover .cover-grad {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: inherit !important;
+}
+
+.modal-title-area {
+  min-width: 0;
+}
+
+.modal-title-area h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+@media (max-width: 900px) {
+  .song-list-row {
+    grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  }
+
+  .song-list-row > .sc-actions {
+    gap: 6px !important;
+  }
+
+  .sc-meta-line {
+    display: none !important;
+  }
+
+  .song-list-row .sc-play {
+    display: none !important;
+  }
+
+  .song-list-row .sc-heart,
+  .song-list-row .sc-dots {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .song-list-row {
+    grid-template-columns: 48px minmax(0, 1fr) auto !important;
+    gap: 10px !important;
+  }
+
+  .song-list-row .sc-heart {
+    display: none !important;
+  }
+
+  .song-list-row .sc-dots {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+}
+/* ============================================================
+   HAWARMUSIC HOME FINAL PROFESSIONAL FIX
+   ============================================================ */
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.home-hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 190px !important;
+  align-items: center !important;
+  gap: 24px !important;
+  min-height: 220px !important;
+  margin-bottom: 0 !important;
+}
+
+.home-hero .hero-sub {
+  max-width: 620px;
+}
+
+.home-hero-card {
+  min-height: 150px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at top left, rgba(91,140,255,0.28), transparent 42%),
+    linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow:
+    0 18px 44px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+.home-hero-card span {
+  color: #9ca8d2;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.home-hero-card strong {
+  font-size: 54px;
+  font-weight: 900;
+  line-height: 1;
+  margin: 8px 0;
+  background: linear-gradient(135deg, #6ea8ff, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.home-hero-card i {
+  color: #dfe6ff;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.home-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-stat {
+  padding: 18px;
+  border-radius: 20px;
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.home-stat span {
+  color: #9ca8d2;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.home-stat strong {
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-top: 7px;
+}
+
+.home-stat i {
+  color: #7f8bb7;
+  font-style: normal;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.home-song-section {
+  margin-bottom: 0 !important;
+}
+
+.home-song-section .row-head,
+.home-playlist-section .row-head {
+  margin-bottom: 12px !important;
+}
+
+.row-head p {
+  margin-top: 4px;
+  color: #7f8bb7;
+  font-size: 13px;
+}
+
+.home-song-list {
+  gap: 10px !important;
+}
+
+.home-playlist-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.home-playlist-item {
+  width: 100%;
+  min-height: 74px;
+  padding: 12px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  color: #ffffff;
+}
+
+.home-playlist-cover {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: rgba(255,255,255,0.82);
+}
+
+.home-playlist-item strong {
+  display: block;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 850;
+  max-width: 155px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-playlist-item span {
+  display: block;
+  color: #9ca8d2;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.home-empty {
+  max-width: none !important;
+  width: 100%;
+  padding: 48px 24px !important;
+  border-radius: 24px;
+}
+
+.home-empty-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.home-loading {
+  min-height: 340px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  border-radius: 24px;
+  padding: 40px;
+}
+
+.home-loading strong {
+  display: block;
+  color: #ffffff;
+  font-size: 20px;
+  margin-top: 14px;
+}
+
+.home-loading span {
+  display: block;
+  color: #9ca8d2;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.loading-wave {
+  width: 70px;
+  height: 70px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #7c4dff, #4f7cff);
+  box-shadow: 0 18px 42px rgba(90, 110, 255, 0.34);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@media (max-width: 1000px) {
+  .home-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-hero {
+    grid-template-columns: 1fr !important;
+  }
+
+  .home-hero-card {
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 600px) {
+  .home-page {
+    gap: 18px;
+  }
+
+  .home-hero {
+    min-height: auto !important;
+  }
+
+  .home-hero-card {
+    display: none;
+  }
+
+  .home-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .home-stat {
+    min-height: 88px;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .home-stat strong {
+    font-size: 24px;
+  }
+
+  .home-stat span,
+  .home-stat i {
+    font-size: 11px;
+  }
+
+  .home-playlist-list {
+    grid-template-columns: 1fr;
+  }
+
+  .home-empty-actions {
+    flex-direction: column;
+  }
+
+  .home-empty-actions .btn {
+    width: 100%;
+  }
+
+  .row-head {
+    align-items: flex-start !important;
+  }
+
+  .row-head h2 {
+    font-size: 17px !important;
+  }
+
+  .row-head p {
+    font-size: 12px;
+  }
+}
+/* ============================================================
+   HAWARMUSIC LIBRARY FINAL LIST PAGE FIX
+   ============================================================ */
+
+.library-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.library-head {
+  margin-bottom: 0 !important;
+}
+
+.library-head > div:first-child {
+  min-width: 0;
+}
+
+.library-sub {
+  display: block;
+  color: #8d98c3;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.library-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.library-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 22px;
+}
+
+.library-search {
+  position: relative;
+  min-width: 0;
+}
+
+.library-search span {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8d98c3;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.library-search input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px 0 44px;
+  border-radius: 16px;
+  color: #ffffff;
+  background: rgba(255,255,255,0.065);
+  border: 1px solid rgba(255,255,255,0.10);
+  outline: none;
+}
+
+.library-search input::placeholder {
+  color: #7f8bb7;
+}
+
+.library-search input:focus {
+  border-color: rgba(110,168,255,0.42);
+  box-shadow: 0 0 0 3px rgba(91,140,255,0.10);
+}
+
+.library-sort .f-input {
+  width: 100%;
+  height: 48px;
+  border-radius: 16px;
+}
+
+.library-filters {
+  gap: 8px !important;
+}
+
+.library-filters .chip {
+  min-height: 38px;
+  padding: 0 14px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.library-list {
+  gap: 10px !important;
+}
+
+.library-empty {
+  max-width: none !important;
+  width: 100%;
+  border-radius: 24px;
+  padding: 48px 24px !important;
+}
+
+@media (max-width: 760px) {
+  .library-head {
+    align-items: flex-start !important;
+  }
+
+  .library-actions {
+    width: 100%;
+  }
+
+  .library-actions .btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .library-toolbar {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .library-search input {
+    height: 46px;
+    font-size: 13px;
+  }
+
+  .library-sort .f-input {
+    height: 46px;
+  }
+
+  .library-filters {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+  }
+
+  .library-filters .chip {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 430px) {
+  .library-actions {
+    gap: 8px;
+  }
+
+  .library-actions .btn {
+    height: 42px !important;
+    min-height: 42px !important;
+    font-size: 12px !important;
+    padding: 0 10px !important;
+  }
+
+  .library-sub {
+    font-size: 12px;
+  }
+}
+/* ============================================================
+   HAWARMUSIC FAVORITES FINAL LIST PAGE FIX
+   ============================================================ */
+
+.favorites-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.favorites-head {
+  margin-bottom: 0 !important;
+}
+
+.favorites-head > div:first-child {
+  min-width: 0;
+}
+
+.favorites-sub {
+  display: block;
+  color: #8d98c3;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.favorites-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.favorites-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 22px;
+}
+
+.favorites-search {
+  position: relative;
+  min-width: 0;
+}
+
+.favorites-search span {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8d98c3;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.favorites-search input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px 0 44px;
+  border-radius: 16px;
+  color: #ffffff;
+  background: rgba(255,255,255,0.065);
+  border: 1px solid rgba(255,255,255,0.10);
+  outline: none;
+}
+
+.favorites-search input::placeholder {
+  color: #7f8bb7;
+}
+
+.favorites-search input:focus {
+  border-color: rgba(244,114,182,0.40);
+  box-shadow: 0 0 0 3px rgba(244,114,182,0.10);
+}
+
+.favorites-sort .f-input {
+  width: 100%;
+  height: 48px;
+  border-radius: 16px;
+}
+
+.favorites-list {
+  gap: 10px !important;
+}
+
+.favorites-empty {
+  max-width: none !important;
+  width: 100%;
+  border-radius: 24px;
+  padding: 48px 24px !important;
+}
+
+@media (max-width: 760px) {
+  .favorites-head {
+    align-items: flex-start !important;
+  }
+
+  .favorites-actions {
+    width: 100%;
+  }
+
+  .favorites-actions .btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .favorites-toolbar {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .favorites-search input {
+    height: 46px;
+    font-size: 13px;
+  }
+
+  .favorites-sort .f-input {
+    height: 46px;
+  }
+}
+
+@media (max-width: 430px) {
+  .favorites-actions {
+    gap: 8px;
+  }
+
+  .favorites-actions .btn {
+    height: 42px !important;
+    min-height: 42px !important;
+    font-size: 12px !important;
+    padding: 0 10px !important;
+  }
+
+  .favorites-sub {
+    font-size: 12px;
+  }
+}
