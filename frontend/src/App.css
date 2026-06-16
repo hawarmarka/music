@@ -1404,4 +1404,432 @@ textarea,
     border-radius: 18px !important;
   }
 }
+/* ============================================================
+   HAWARMUSIC - ŞARKI LİSTE GÖRÜNÜMÜ + MOBİL DÜZELTME
+   Büyük kart/kapak görünümünü kaldırır, liste satırı yapar
+   ============================================================ */
+
+/* Ana gridleri listeye çevir */
+.row-grid,
+.grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  overflow: visible !important;
+  padding-bottom: 0 !important;
+}
+
+/* Şarkı kartını liste satırı yap */
+.song-card {
+  width: 100% !important;
+  min-height: 76px !important;
+  display: grid !important;
+  grid-template-columns: 58px minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 10px 14px !important;
+  border-radius: 18px !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.075), rgba(255,255,255,0.035)) !important;
+  border: 1px solid rgba(255,255,255,0.09) !important;
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  overflow: visible !important;
+  transform: none !important;
+}
+
+.song-card:hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(125,150,255,0.24) !important;
+  background:
+    linear-gradient(135deg, rgba(120,145,255,0.13), rgba(168,85,247,0.08)) !important;
+}
+
+/* Büyük kapak/logo alanını küçült */
+.sc-art {
+  width: 58px !important;
+  height: 58px !important;
+  min-width: 58px !important;
+  aspect-ratio: auto !important;
+  border-radius: 15px !important;
+  cursor: pointer !important;
+  overflow: hidden !important;
+}
+
+.sc-art img,
+.cover-grad {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 15px !important;
+}
+
+.cover-grad span {
+  font-size: 20px !important;
+  color: rgba(255,255,255,0.76) !important;
+}
+
+/* Bağlantı etiketi küçük dursun */
+.sc-src {
+  display: none !important;
+}
+
+/* Offline küçük ikonu düzgün dursun */
+.sc-offline {
+  top: -5px !important;
+  right: -5px !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 8px !important;
+}
+
+/* Liste içinde çal butonu büyük kapak üstünde çıkmasın */
+.sc-play {
+  position: static !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  border-radius: 14px !important;
+  opacity: 1 !important;
+  transform: none !important;
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+}
+
+/* Kart gövdesi */
+.sc-body {
+  padding: 0 !important;
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+/* Şarkı adı / sanatçı */
+.sc-titles {
+  min-width: 0 !important;
+}
+
+.sc-titles strong {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  line-height: 1.25 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.sc-titles span {
+  font-size: 13px !important;
+  color: #9ca8d2 !important;
+  margin-top: 3px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Kalp ve menü sağda düzgün dursun */
+.sc-actions {
+  margin-top: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.sc-heart {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  border-radius: 13px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(255,255,255,0.055) !important;
+  border: 1px solid rgba(255,255,255,0.09) !important;
+  color: #aeb8db !important;
+  font-size: 17px !important;
+}
+
+.sc-heart i {
+  display: none !important;
+}
+
+.sc-heart.on {
+  color: #f472b6 !important;
+  background: rgba(244,114,182,0.12) !important;
+  border-color: rgba(244,114,182,0.20) !important;
+}
+
+.sc-dots {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  padding: 0 !important;
+  border-radius: 13px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(255,255,255,0.055) !important;
+  border: 1px solid rgba(255,255,255,0.09) !important;
+  color: #ffffff !important;
+  font-size: 18px !important;
+}
+
+/* Menü kutusu */
+.sc-menu {
+  right: 0 !important;
+  bottom: auto !important;
+  top: calc(100% + 8px) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg, rgba(22,27,58,0.96), rgba(15,19,45,0.96)) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+/* Homepage satır başlıkları */
+.row {
+  margin-bottom: 28px !important;
+}
+
+.row-head {
+  margin-bottom: 12px !important;
+}
+
+.row-head h2 {
+  font-size: 18px !important;
+}
+
+/* Hero biraz daha kompakt */
+.hero {
+  padding: 2rem !important;
+  border-radius: 22px !important;
+}
+
+/* Player bar daha düzgün */
+.player-bar {
+  height: 86px !important;
+  grid-template-columns: minmax(260px, 1fr) minmax(340px, 1.4fr) minmax(180px, 1fr) !important;
+  padding: 0 22px !important;
+}
+
+.pb-buttons {
+  gap: 10px !important;
+}
+
+.pb-sm,
+.pb-play,
+.pb-icon {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  border-radius: 14px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(255,255,255,0.07) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  color: #ffffff !important;
+}
+
+.pb-play {
+  width: 50px !important;
+  height: 50px !important;
+  min-width: 50px !important;
+  background: linear-gradient(135deg, #7c4dff, #4f7cff) !important;
+  border-radius: 16px !important;
+}
+
+/* Full player modal butonları */
+.full-card {
+  border-radius: 24px !important;
+}
+
+.pb-buttons.big .pb-sm,
+.pb-buttons.big .pb-play {
+  border-radius: 16px !important;
+}
+
+.pb-buttons.big .pb-play {
+  width: 58px !important;
+  height: 58px !important;
+}
+
+/* Topbar mobil ve masaüstü toparlama */
+.topbar {
+  gap: 14px !important;
+}
+
+.tb-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.tb-actions .btn,
+.tb-actions button {
+  height: 46px !important;
+  min-height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 16px !important;
+  white-space: nowrap !important;
+}
+
+/* Mobil düzen */
+@media (max-width: 900px) {
+  .topbar {
+    position: sticky !important;
+    top: 0 !important;
+    padding: 12px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .tb-search {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  .tb-actions {
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  .tb-actions .btn,
+  .tb-actions button {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
+  }
+
+  .notif-btn {
+    flex: 0 0 46px !important;
+  }
+
+  .page {
+    padding: 16px 12px calc(var(--player-h) + 92px) !important;
+  }
+
+  .hero {
+    padding: 22px !important;
+    margin-bottom: 22px !important;
+  }
+
+  .hero h1 {
+    font-size: 28px !important;
+  }
+
+  .hero-sub {
+    font-size: 14px !important;
+  }
+
+  .hero-cta {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-cta .btn {
+    width: 100% !important;
+  }
+
+  .song-card {
+    grid-template-columns: 52px minmax(0, 1fr) !important;
+    gap: 12px !important;
+    padding: 10px !important;
+    min-height: 72px !important;
+  }
+
+  .sc-art,
+  .sc-art img,
+  .cover-grad {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 14px !important;
+  }
+
+  .sc-play {
+    display: none !important;
+  }
+
+  .sc-body {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+  }
+
+  .sc-titles strong {
+    font-size: 14px !important;
+  }
+
+  .sc-titles span {
+    font-size: 12px !important;
+  }
+
+  .sc-heart,
+  .sc-dots {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 12px !important;
+  }
+
+  .player-bar {
+    height: 74px !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    padding: 0 12px !important;
+  }
+
+  .pb-cover-wrap,
+  .pb-cover {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .pb-text strong {
+    font-size: 13px !important;
+  }
+
+  .pb-text span {
+    font-size: 12px !important;
+  }
+
+  .pb-center,
+  .pb-right {
+    display: none !important;
+  }
+
+  .mobile-nav {
+    bottom: 74px !important;
+  }
+}
+
+/* Küçük telefonlar */
+@media (max-width: 480px) {
+  .page-head h1 {
+    font-size: 24px !important;
+  }
+
+  .hero h1 {
+    font-size: 24px !important;
+  }
+
+  .song-card {
+    border-radius: 16px !important;
+  }
+
+  .tb-actions {
+    gap: 8px !important;
+  }
+
+  .tb-actions .btn,
+  .tb-actions button {
+    height: 42px !important;
+    min-height: 42px !important;
+    border-radius: 14px !important;
+    font-size: 12px !important;
+  }
+}
 
