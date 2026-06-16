@@ -5761,3 +5761,68 @@ textarea,
     z-index: 90 !important;
   }
 }
+/* ============================================================
+   HAWARMUSIC SONGCARD BUTTON HARD FIX
+   Butonları gerçek clickable element yapar
+   ============================================================ */
+
+.sc-art-button,
+.sc-body-button {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  text-align: left !important;
+  cursor: pointer !important;
+}
+
+.sc-art-button:hover,
+.sc-body-button:hover {
+  transform: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.song-list-row > .sc-body-button {
+  grid-column: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.song-list-row > .sc-art-button {
+  grid-column: 1 !important;
+  width: 58px !important;
+  height: 58px !important;
+  min-width: 58px !important;
+  border-radius: 15px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.song-list-row > .sc-actions {
+  grid-column: 3 !important;
+  pointer-events: auto !important;
+  z-index: 100 !important;
+}
+
+.song-list-row > .sc-actions * {
+  pointer-events: auto !important;
+}
+
+.song-list-row .sc-menu {
+  z-index: 99999 !important;
+}
+
+@media (max-width: 900px) {
+  .song-list-row > .sc-art-button {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    border-radius: 14px !important;
+  }
+}
