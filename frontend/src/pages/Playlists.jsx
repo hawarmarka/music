@@ -1,44 +1,55 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../lib/api";
+import { usePlayer } from "../lib/player";
 import SongCard from "../components/SongCard";
 
 export default function Playlists() {
+  const player = usePlayer();
+
   const [lists, setLists] = useState([]);
   const [active, setActive] = useState(null);
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [dragId, setDragId] = useState(null);
   const [err, setErr] = useState("");
 
-  function load() {
-    setLoading(true);
+  const [newName, setNewName] = useState("");
+  const [newShare, setNewShare] = useState("family");
 
-    api
-      .playlists()
-      .then((data) => {
-        setLists(data || []);
-      })
-      .catch((e) => {
-        setErr(e.message || "Playlistler alınamadı.");
-        setLists([]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+  async function load() {
+    setLoading(true);
+    setErr("");
+
+    try {
+      const data = await api.playlists();
+      setLists(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setErr(e.message || "Playlistler alınamadı.");
+      setLists([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function loadDetail() {
+  async function loadDetail() {
     if (!active) {
       setDetail(null);
       return;
     }
 
-    api
-      .playlist(active)
-      .then(setDetail)
-      .catch((e) => {
-        setErr(e.message || "Playlist açılırken hata oluştu.");
-      });
+    setDetailLoading(true);
+    setErr("");
+
+    try {
+      const data = await api.playlist(active);
+      setDetail(data);
+    } catch (e) {
+      setErr(e.message || "Playlist açılırken hata oluştu.");
+      setDetail(null);
+    } finally {
+      setDetailLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -49,31 +60,65 @@ export default function Playlists() {
     loadDetail();
   }, [active]);
 
-  async function create() {
-    const name = prompt("Playlist adı:");
-    if (!name?.trim()) return;
+  const sortedLists = useMemo(() => {
+    return [...lists].sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+  }, [lists]);
 
-    const share = confirm("Aile ile paylaşılsın mı? İptal = özel")
-      ? "family"
-      : "private";
+  async function create(e) {
+    e?.preventDefault();
 
-    await api.createPlaylist({ name: name.trim(), share });
-    load();
+    const name = newName.trim();
+
+    if (!name) {
+      setErr("Playlist adı boş olamaz.");
+      return;
+    }
+
+    setErr("");
+
+    try {
+      const created = await api.createPlaylist({
+        name,
+        share: newShare,
+      });
+
+      setNewName("");
+      setNewShare("family");
+
+      await load();
+
+      if (created?.id) {
+        setActive(created.id);
+      }
+    } catch (e2) {
+      setErr(e2.message || "Playlist oluşturulamadı.");
+    }
   }
 
   async function del(id) {
     if (!confirm("Playlist silinsin mi?")) return;
 
-    await api.deletePlaylist(id);
-    setActive(null);
-    load();
+    setErr("");
+
+    try {
+      await api.deletePlaylist(id);
+      setActive(null);
+      setDetail(null);
+      await load();
+    } catch (e) {
+      setErr(e.message || "Playlist silinemedi.");
+    }
   }
 
   async function removeSong(songId) {
+    if (!detail?.id) return;
+
+    setErr("");
+
     try {
       await api.playlistRemove(detail.id, songId);
-      loadDetail();
-      load();
+      await loadDetail();
+      await load();
     } catch (e) {
       setErr(e.message || "Şarkı playlistten çıkarılamadı.");
     }
@@ -105,79 +150,113 @@ export default function Playlists() {
     }
   }
 
-  if (active && detail) {
+  function playPlaylist() {
+    if (!detail?.songs?.length) return;
+    player.playSong(detail.songs[0], detail.songs);
+  }
+
+  if (active) {
     return (
-      <div>
-        <div className="page-head">
-          <button type="button" className="back-btn" onClick={() => setActive(null)}>
-            Geri
+      <div className="playlist-detail-page">
+        <div className="page-head playlist-detail-top">
+          <button
+            type="button"
+            className="back-btn"
+            onClick={() => {
+              setActive(null);
+              setDetail(null);
+              setErr("");
+            }}
+          >
+            ← Geri
           </button>
         </div>
 
-        <div className="pl-detail-head">
-          <div className="pl-detail-cover" style={{ background: detail.cover_gradient }}>
-            ♪
-          </div>
+        {err && <div className="error-box">{err}</div>}
 
-          <div>
-            <p className="hero-eyebrow">
-              {detail.share === "family" ? "Aile playlisti" : "Özel playlist"}
-            </p>
-
-            <h1>{detail.name}</h1>
-
-            <p className="hero-sub">
-              {detail.songs.length} şarkı · {detail.owner_name}
-            </p>
-
-            <div className="hero-cta">
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => del(detail.id)}
-              >
-                Playlisti sil
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {err && (
-          <div className="error-box" style={{ marginBottom: "1rem" }}>
-            {err}
-          </div>
-        )}
-
-        {detail.songs.length === 0 ? (
-          <div className="empty">
-            <p>Bu playlist boş. Şarkı kartlarındaki menüden ekleyebilirsin.</p>
+        {detailLoading || !detail ? (
+          <div className="home-loading glass">
+            <div className="loading-wave">≡</div>
+            <strong>Playlist yükleniyor...</strong>
+            <span>Şarkılar hazırlanıyor.</span>
           </div>
         ) : (
           <>
-            <p className="muted-note">
-              Sıralamak için kartı tutup başka kartın üstüne bırak.
-            </p>
+            <section className="playlist-detail-hero glass">
+              <div
+                className="playlist-detail-cover"
+                style={{ background: detail.cover_gradient }}
+              >
+                ≡
+              </div>
 
-            <div className="grid">
-              {detail.songs.map((s) => (
-                <div
-                  key={s.id}
-                  draggable
-                  onDragStart={() => setDragId(s.id)}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={() => dropOn(s.id)}
-                  className="drag-wrap"
-                >
-                  <SongCard
-                    song={s}
-                    list={detail.songs}
-                    inPlaylist
-                    onRemoveFromPlaylist={removeSong}
-                    onChanged={loadDetail}
-                  />
+              <div className="playlist-detail-info">
+                <p className="hero-eyebrow">
+                  {detail.share === "family" ? "Aile playlisti" : "Özel playlist"}
+                </p>
+
+                <h1>{detail.name}</h1>
+
+                <p className="hero-sub">
+                  {detail.songs?.length || 0} şarkı · {detail.owner_name || "HawarMusic"}
+                </p>
+
+                <div className="playlist-detail-actions">
+                  <button
+                    type="button"
+                    className="btn btn-grad"
+                    onClick={playPlaylist}
+                    disabled={!detail.songs?.length}
+                  >
+                    ▶ Playlisti çal
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => del(detail.id)}
+                  >
+                    Playlisti sil
+                  </button>
                 </div>
-              ))}
-            </div>
+              </div>
+            </section>
+
+            {detail.songs?.length === 0 ? (
+              <div className="empty playlist-empty glass">
+                <div className="empty-ic">♪</div>
+                <h3>Bu playlist boş</h3>
+                <p>Şarkı kartlarındaki üç nokta menüsünden playlist'e ekleyebilirsin.</p>
+              </div>
+            ) : (
+              <>
+                <p className="muted-note playlist-note">
+                  Sıralamak için kartı tutup başka kartın üstüne bırak.
+                </p>
+
+                <div className="grid playlist-song-list">
+                  {detail.songs.map((s) => (
+                    <div
+                      key={s.id}
+                      draggable
+                      onDragStart={() => setDragId(s.id)}
+                      onDragEnd={() => setDragId(null)}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={() => dropOn(s.id)}
+                      className={`drag-wrap ${dragId === s.id ? "dragging" : ""}`}
+                    >
+                      <SongCard
+                        song={s}
+                        list={detail.songs}
+                        inPlaylist
+                        onRemoveFromPlaylist={removeSong}
+                        onChanged={loadDetail}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
@@ -185,47 +264,81 @@ export default function Playlists() {
   }
 
   return (
-    <div>
-      <div className="page-head">
-        <h1>Playlistler</h1>
-
-        <button type="button" className="btn btn-grad" onClick={create}>
-          Yeni playlist
-        </button>
+    <div className="playlists-page">
+      <div className="page-head playlists-head">
+        <div>
+          <p className="hero-eyebrow">Playlistler</p>
+          <h1>Aile listeleri</h1>
+          <span className="playlists-sub">{lists.length} playlist mevcut</span>
+        </div>
       </div>
 
-      {err && (
-        <div className="error-box" style={{ marginBottom: "1rem" }}>
-          {err}
+      <form className="playlist-create glass" onSubmit={create}>
+        <div>
+          <strong>Yeni playlist oluştur</strong>
+          <span>Şarkıları aileyle paylaşmak veya özel saklamak için liste oluştur.</span>
         </div>
-      )}
+
+        <input
+          className="f-input"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          placeholder="Playlist adı"
+        />
+
+        <select
+          className="f-input"
+          value={newShare}
+          onChange={(e) => setNewShare(e.target.value)}
+        >
+          <option value="family">Aile ile paylaş</option>
+          <option value="private">Özel</option>
+        </select>
+
+        <button type="submit" className="btn btn-grad">
+          + Oluştur
+        </button>
+      </form>
+
+      {err && <div className="error-box">{err}</div>}
 
       {loading ? (
-        <div className="loading">Yükleniyor...</div>
-      ) : lists.length === 0 ? (
-        <div className="empty">
+        <div className="home-loading glass">
+          <div className="loading-wave">≡</div>
+          <strong>Playlistler yükleniyor...</strong>
+          <span>Listelerin hazırlanıyor.</span>
+        </div>
+      ) : sortedLists.length === 0 ? (
+        <div className="empty playlist-empty glass">
           <div className="empty-ic">♪</div>
           <h3>Playlist yok</h3>
-          <p>İlk playlistini oluştur.</p>
+          <p>İlk playlistini oluşturup sevdiğin şarkıları içine ekle.</p>
         </div>
       ) : (
-        <div className="pl-grid">
-          {lists.map((p) => (
+        <div className="playlist-list">
+          {sortedLists.map((p) => (
             <button
               key={p.id}
               type="button"
-              className="pl-card"
+              className="playlist-item glass"
               onClick={() => setActive(p.id)}
             >
-              <div className="pl-cover" style={{ background: p.cover_gradient }}>
-                ♪
+              <div
+                className="playlist-item-cover"
+                style={{ background: p.cover_gradient }}
+              >
+                ≡
               </div>
 
-              <strong>{p.name}</strong>
+              <div className="playlist-item-info">
+                <strong>{p.name}</strong>
 
-              <span>
-                {p.song_count} şarkı · {p.share === "family" ? "aile" : "özel"}
-              </span>
+                <span>
+                  {p.song_count || 0} şarkı · {p.share === "family" ? "aile" : "özel"}
+                </span>
+              </div>
+
+              <i>›</i>
             </button>
           ))}
         </div>
