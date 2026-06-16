@@ -13,6 +13,11 @@ const SRC_LABEL = {
 
 const EMOJIS = ["❤️", "🔥", "👏", "🎧", "⭐"];
 
+function stop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
 function SongCover({ song, className = "" }) {
   const token = encodeURIComponent(getToken() || "");
 
@@ -116,7 +121,7 @@ function SongDetails({ song, onClose, onChanged }) {
   return (
     <div className="modal-back" onClick={onClose}>
       <div className="song-modal glass" onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="modal-x" onClick={onClose} aria-label="Kapat">
+        <button type="button" className="modal-x" onClick={onClose}>
           ✕
         </button>
 
@@ -127,7 +132,8 @@ function SongDetails({ song, onClose, onChanged }) {
 
           <div className="modal-title-area">
             <p className="hero-eyebrow">
-              {SRC_LABEL[song.source_type] || "Bağlantı"} · Ekleyen: {song.uploaded_by_name || "HawarMusic"}
+              {SRC_LABEL[song.source_type] || "Bağlantı"} · Ekleyen:{" "}
+              {song.uploaded_by_name || "HawarMusic"}
             </p>
 
             <h2>{song.title}</h2>
@@ -148,46 +154,13 @@ function SongDetails({ song, onClose, onChanged }) {
             <h3>Şarkı bilgileri</h3>
 
             <div className="detail-fields">
-              <input
-                className="f-input"
-                value={edit.title}
-                onChange={(e) => setEdit({ ...edit, title: e.target.value })}
-                placeholder="Başlık"
-              />
+              <input className="f-input" value={edit.title} onChange={(e) => setEdit({ ...edit, title: e.target.value })} placeholder="Başlık" />
+              <input className="f-input" value={edit.artist} onChange={(e) => setEdit({ ...edit, artist: e.target.value })} placeholder="Sanatçı" />
+              <input className="f-input" value={edit.album} onChange={(e) => setEdit({ ...edit, album: e.target.value })} placeholder="Albüm" />
+              <input className="f-input" value={edit.genre} onChange={(e) => setEdit({ ...edit, genre: e.target.value })} placeholder="Tür" />
+              <input className="f-input" value={edit.year || ""} onChange={(e) => setEdit({ ...edit, year: e.target.value })} placeholder="Yıl" />
 
-              <input
-                className="f-input"
-                value={edit.artist}
-                onChange={(e) => setEdit({ ...edit, artist: e.target.value })}
-                placeholder="Sanatçı"
-              />
-
-              <input
-                className="f-input"
-                value={edit.album}
-                onChange={(e) => setEdit({ ...edit, album: e.target.value })}
-                placeholder="Albüm"
-              />
-
-              <input
-                className="f-input"
-                value={edit.genre}
-                onChange={(e) => setEdit({ ...edit, genre: e.target.value })}
-                placeholder="Tür"
-              />
-
-              <input
-                className="f-input"
-                value={edit.year || ""}
-                onChange={(e) => setEdit({ ...edit, year: e.target.value })}
-                placeholder="Yıl"
-              />
-
-              <select
-                className="f-input"
-                value={edit.visibility}
-                onChange={(e) => setEdit({ ...edit, visibility: e.target.value })}
-              >
+              <select className="f-input" value={edit.visibility} onChange={(e) => setEdit({ ...edit, visibility: e.target.value })}>
                 <option value="family">Aile ile paylaş</option>
                 <option value="private">Özel</option>
               </select>
@@ -203,11 +176,7 @@ function SongDetails({ song, onClose, onChanged }) {
           <section>
             <h3>Playlist'e ekle</h3>
 
-            <select
-              className="f-input"
-              onChange={(e) => addToPlaylist(e.target.value)}
-              defaultValue=""
-            >
+            <select className="f-input" onChange={(e) => addToPlaylist(e.target.value)} defaultValue="">
               <option value="" disabled>
                 Playlist seç
               </option>
@@ -284,7 +253,7 @@ export default function SongCard({
 }) {
   const player = usePlayer();
 
-  const [liked, setLiked] = useState(song.liked);
+  const [liked, setLiked] = useState(Boolean(song.liked));
   const [likeCount, setLikeCount] = useState(song.like_count || 0);
   const [isOffline, setIsOffline] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -304,27 +273,44 @@ export default function SongCard({
   }, [song.id]);
 
   const playing = player.current?.id === song.id;
-
   const artist = song.artist || `Ekleyen: ${song.uploaded_by_name || "HawarMusic"}`;
   const sourceLabel = SRC_LABEL[song.source_type] || "Bağlantı";
 
-  function playSong(e) {
-    e.stopPropagation();
-    player.playSong(song, list);
+  function handlePlay(e) {
+    stop(e);
+    player.playSong(song, list || [song]);
   }
 
   async function toggleFav(e) {
-    e.stopPropagation();
+    stop(e);
 
     try {
       const r = await api.favorite(song.id);
-      setLiked(r.liked);
+
+      setLiked(Boolean(r.liked));
       setLikeCount(r.like_count || 0);
-    } catch {}
+
+      if (!r.liked) {
+        onChanged?.();
+      }
+    } catch (err) {
+      alert(err.message || "Favori işlemi başarısız.");
+    }
+  }
+
+  function toggleMenu(e) {
+    stop(e);
+    setMenu((v) => !v);
+  }
+
+  function openDetails(e) {
+    stop(e);
+    setMenu(false);
+    setDetails(true);
   }
 
   async function saveOffline(e) {
-    e.stopPropagation();
+    stop(e);
     setMenu(false);
 
     if (!song.is_downloadable) return;
@@ -333,6 +319,11 @@ export default function SongCard({
 
     try {
       const res = await fetch(`${api.streamUrl(song.id)}?t=${encodeURIComponent(getToken() || "")}`);
+
+      if (!res.ok) {
+        throw new Error("Dosya indirilemedi.");
+      }
+
       const blob = await res.blob();
 
       await offline.save(song, blob);
@@ -347,7 +338,7 @@ export default function SongCard({
   }
 
   async function removeOffline(e) {
-    e.stopPropagation();
+    stop(e);
     setMenu(false);
 
     await offline.remove(song.id);
@@ -357,7 +348,7 @@ export default function SongCard({
   }
 
   async function del(e) {
-    e.stopPropagation();
+    stop(e);
     setMenu(false);
 
     if (!confirm("Bu şarkı silinsin mi?")) return;
@@ -370,16 +361,23 @@ export default function SongCard({
     }
   }
 
-  function openDetails(e) {
-    e.stopPropagation();
+  function removeFromPlaylist(e) {
+    stop(e);
     setMenu(false);
-    setDetails(true);
+    onRemoveFromPlaylist?.(song.id);
   }
 
   return (
     <>
       <article className={`song-card song-list-row ${playing ? "is-playing" : ""}`}>
-        <div className="sc-art" onClick={playSong} title="Çal">
+        <button
+          type="button"
+          className="sc-art sc-art-button"
+          onClick={handlePlay}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          title="Çal"
+        >
           <SongCover song={song} />
 
           {isOffline && (
@@ -387,10 +385,17 @@ export default function SongCard({
               ⤓
             </span>
           )}
-        </div>
+        </button>
 
-        <div className="sc-body">
-          <div className="sc-titles" onClick={playSong}>
+        <button
+          type="button"
+          className="sc-body sc-body-button"
+          onClick={handlePlay}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          title="Çal"
+        >
+          <div className="sc-titles">
             <strong title={song.title}>{song.title}</strong>
             <span title={artist}>{artist}</span>
           </div>
@@ -404,13 +409,20 @@ export default function SongCard({
             {song.year && <span>{song.year}</span>}
             {!song.is_downloadable && <span>Link-only</span>}
           </div>
-        </div>
+        </button>
 
-        <div className="sc-actions">
+        <div
+          className="sc-actions"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <button
             type="button"
             className="sc-play"
-            onClick={playSong}
+            onClick={handlePlay}
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
             aria-label="Çal"
             title="Çal"
           >
@@ -421,6 +433,8 @@ export default function SongCard({
             type="button"
             className={`sc-heart ${liked ? "on" : ""}`}
             onClick={toggleFav}
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
             aria-label="Favori"
             title="Favori"
           >
@@ -432,10 +446,9 @@ export default function SongCard({
             <button
               type="button"
               className="sc-dots"
-              onClick={(e) => {
-                e.stopPropagation();
-                setMenu(!menu);
-              }}
+              onClick={toggleMenu}
+              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
               aria-label="Menü"
               title="Menü"
             >
@@ -443,7 +456,12 @@ export default function SongCard({
             </button>
 
             {menu && (
-              <div className="sc-menu" onMouseLeave={() => setMenu(false)}>
+              <div
+                className="sc-menu"
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
                 <button type="button" onClick={openDetails}>
                   Detay / yorum / playlist
                 </button>
@@ -476,14 +494,7 @@ export default function SongCard({
                 )}
 
                 {inPlaylist && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMenu(false);
-                      onRemoveFromPlaylist?.(song.id);
-                    }}
-                  >
+                  <button type="button" onClick={removeFromPlaylist}>
                     Playlistten çıkar
                   </button>
                 )}
