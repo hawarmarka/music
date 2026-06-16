@@ -13,13 +13,14 @@ const SRC_LABEL = {
 
 const EMOJIS = ["❤️", "🔥", "👏", "🎧", "⭐"];
 
-function stop(e) {
+function safeStop(e) {
   e.preventDefault();
   e.stopPropagation();
 }
 
 function SongCover({ song, className = "" }) {
   const token = encodeURIComponent(getToken() || "");
+  const fallback = song.cover_gradient || "linear-gradient(135deg,#7c4dff,#4f7cff)";
 
   if (song.cover_url) {
     return (
@@ -33,7 +34,7 @@ function SongCover({ song, className = "" }) {
   }
 
   return (
-    <div className={`cover-grad ${className}`} style={{ background: song.cover_gradient }}>
+    <div className={`hm-song-cover-fallback ${className}`} style={{ background: fallback }}>
       <span>♪</span>
     </div>
   );
@@ -121,19 +122,16 @@ function SongDetails({ song, onClose, onChanged }) {
   return (
     <div className="modal-back" onClick={onClose}>
       <div className="song-modal glass" onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="modal-x" onClick={onClose}>
-          ✕
-        </button>
+        <button type="button" className="modal-x" onClick={onClose}>✕</button>
 
         <div className="modal-head">
           <div className="modal-cover">
-            <SongCover song={song} />
+            <SongCover song={song} className="hm-modal-cover-media" />
           </div>
 
           <div className="modal-title-area">
             <p className="hero-eyebrow">
-              {SRC_LABEL[song.source_type] || "Bağlantı"} · Ekleyen:{" "}
-              {song.uploaded_by_name || "HawarMusic"}
+              {SRC_LABEL[song.source_type] || "Bağlantı"} · Ekleyen: {song.uploaded_by_name || "HawarMusic"}
             </p>
 
             <h2>{song.title}</h2>
@@ -143,9 +141,7 @@ function SongDetails({ song, onClose, onChanged }) {
               {song.album ? ` · ${song.album}` : ""}
             </p>
 
-            {!song.is_downloadable && (
-              <span className="tb-offline">Link-only · offline indirilemez</span>
-            )}
+            {!song.is_downloadable && <span className="tb-offline">Link-only · offline indirilemez</span>}
           </div>
         </div>
 
@@ -166,10 +162,7 @@ function SongDetails({ song, onClose, onChanged }) {
               </select>
             </div>
 
-            <button type="button" className="btn btn-grad" onClick={saveEdit}>
-              Kaydet
-            </button>
-
+            <button type="button" className="btn btn-grad" onClick={saveEdit}>Kaydet</button>
             {msg && <div className="ok-box modal-msg">{msg}</div>}
           </section>
 
@@ -177,14 +170,9 @@ function SongDetails({ song, onClose, onChanged }) {
             <h3>Playlist'e ekle</h3>
 
             <select className="f-input" onChange={(e) => addToPlaylist(e.target.value)} defaultValue="">
-              <option value="" disabled>
-                Playlist seç
-              </option>
-
+              <option value="" disabled>Playlist seç</option>
               {playlists.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} ({p.share === "family" ? "aile" : "özel"})
-                </option>
+                <option key={p.id} value={p.id}>{p.name} ({p.share === "family" ? "aile" : "özel"})</option>
               ))}
             </select>
 
@@ -193,14 +181,8 @@ function SongDetails({ song, onClose, onChanged }) {
             <div className="emoji-row">
               {EMOJIS.map((emoji) => {
                 const r = reactions.find((x) => x.emoji === emoji);
-
                 return (
-                  <button
-                    type="button"
-                    key={emoji}
-                    className={r?.mine ? "emoji on" : "emoji"}
-                    onClick={() => react(emoji)}
-                  >
+                  <button type="button" key={emoji} className={r?.mine ? "emoji on" : "emoji"} onClick={() => react(emoji)}>
                     {emoji} {r?.count || ""}
                   </button>
                 );
@@ -217,10 +199,7 @@ function SongDetails({ song, onClose, onChanged }) {
               <p className="mini-empty">Henüz yorum yok.</p>
             ) : (
               comments.map((c) => (
-                <div key={c.id} className="comment-row">
-                  <strong>{c.author}</strong>
-                  <span>{c.text}</span>
-                </div>
+                <div key={c.id} className="comment-row"><strong>{c.author}</strong><span>{c.text}</span></div>
               ))
             )}
           </div>
@@ -234,9 +213,7 @@ function SongDetails({ song, onClose, onChanged }) {
               onKeyDown={(e) => e.key === "Enter" && addComment()}
             />
 
-            <button type="button" className="btn btn-grad" onClick={addComment}>
-              Gönder
-            </button>
+            <button type="button" className="btn btn-grad" onClick={addComment}>Gönder</button>
           </div>
         </section>
       </div>
@@ -244,13 +221,7 @@ function SongDetails({ song, onClose, onChanged }) {
   );
 }
 
-export default function SongCard({
-  song,
-  list,
-  onChanged,
-  inPlaylist,
-  onRemoveFromPlaylist,
-}) {
+export default function SongCard({ song, list, onChanged, inPlaylist, onRemoveFromPlaylist }) {
   const player = usePlayer();
 
   const [liked, setLiked] = useState(Boolean(song.liked));
@@ -264,7 +235,7 @@ export default function SongCard({
     let alive = true;
 
     offline.has(song.id).then((r) => {
-      if (alive) setIsOffline(r);
+      if (alive) setIsOffline(Boolean(r));
     });
 
     return () => {
@@ -272,63 +243,52 @@ export default function SongCard({
     };
   }, [song.id]);
 
+  const queue = Array.isArray(list) && list.length ? list : [song];
   const playing = player.current?.id === song.id;
   const artist = song.artist || `Ekleyen: ${song.uploaded_by_name || "HawarMusic"}`;
   const sourceLabel = SRC_LABEL[song.source_type] || "Bağlantı";
 
-  function handlePlay(e) {
-    stop(e);
-    player.playSong(song, list || [song]);
+  function playSong(e) {
+    safeStop(e);
+    player.playSong(song, queue);
   }
 
   async function toggleFav(e) {
-    stop(e);
+    safeStop(e);
 
     try {
       const r = await api.favorite(song.id);
-
       setLiked(Boolean(r.liked));
       setLikeCount(r.like_count || 0);
-
-      if (!r.liked) {
-        onChanged?.();
-      }
+      if (!r.liked) onChanged?.();
     } catch (err) {
       alert(err.message || "Favori işlemi başarısız.");
     }
   }
 
   function toggleMenu(e) {
-    stop(e);
+    safeStop(e);
     setMenu((v) => !v);
   }
 
   function openDetails(e) {
-    stop(e);
+    safeStop(e);
     setMenu(false);
     setDetails(true);
   }
 
   async function saveOffline(e) {
-    stop(e);
+    safeStop(e);
     setMenu(false);
-
     if (!song.is_downloadable) return;
 
     setBusy(true);
-
     try {
       const res = await fetch(`${api.streamUrl(song.id)}?t=${encodeURIComponent(getToken() || "")}`);
-
-      if (!res.ok) {
-        throw new Error("Dosya indirilemedi.");
-      }
-
+      if (!res.ok) throw new Error("Dosya indirilemedi.");
       const blob = await res.blob();
-
       await offline.save(song, blob);
       await api.offlineMark(song.id).catch(() => {});
-
       setIsOffline(true);
     } catch (err) {
       alert(err.message || "Offline indirme başarısız");
@@ -338,19 +298,20 @@ export default function SongCard({
   }
 
   async function removeOffline(e) {
-    stop(e);
+    safeStop(e);
     setMenu(false);
-
-    await offline.remove(song.id);
-    await api.offlineRemove(song.id).catch(() => {});
-
-    setIsOffline(false);
+    try {
+      await offline.remove(song.id);
+      await api.offlineRemove(song.id).catch(() => {});
+      setIsOffline(false);
+    } catch (err) {
+      alert(err.message || "Offline kayıt kaldırılamadı.");
+    }
   }
 
   async function del(e) {
-    stop(e);
+    safeStop(e);
     setMenu(false);
-
     if (!confirm("Bu şarkı silinsin mi?")) return;
 
     try {
@@ -362,159 +323,68 @@ export default function SongCard({
   }
 
   function removeFromPlaylist(e) {
-    stop(e);
+    safeStop(e);
     setMenu(false);
     onRemoveFromPlaylist?.(song.id);
   }
 
   return (
     <>
-      <article className={`song-card song-list-row ${playing ? "is-playing" : ""}`}>
-        <button
-          type="button"
-          className="sc-art sc-art-button"
-          onClick={handlePlay}
-          onMouseDown={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-          title="Çal"
-        >
-          <SongCover song={song} />
+      <article className={`hm-song-row ${playing ? "is-playing" : ""}`}>
+        <div className="hm-song-hit hm-song-cover-box" role="button" tabIndex={0} onClick={playSong} onKeyDown={(e) => e.key === "Enter" && playSong(e)} title="Çal">
+          <SongCover song={song} className="hm-song-cover-media" />
+          {isOffline && <span className="hm-song-offline" title="Offline kayıtlı">⤓</span>}
+        </div>
 
-          {isOffline && (
-            <span className="sc-offline" title="Offline kayıtlı">
-              ⤓
-            </span>
-          )}
-        </button>
+        <div className="hm-song-hit hm-song-info" role="button" tabIndex={0} onClick={playSong} onKeyDown={(e) => e.key === "Enter" && playSong(e)} title="Çal">
+          <strong title={song.title}>{song.title || "İsimsiz şarkı"}</strong>
+          <span title={artist}>{artist}</span>
 
-        <button
-          type="button"
-          className="sc-body sc-body-button"
-          onClick={handlePlay}
-          onMouseDown={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-          title="Çal"
-        >
-          <div className="sc-titles">
-            <strong title={song.title}>{song.title}</strong>
-            <span title={artist}>{artist}</span>
+          <div className="hm-song-meta">
+            <i className={`hm-source hm-source-${song.source_type}`}>{sourceLabel}</i>
+            {song.album && <em>{song.album}</em>}
+            {song.year && <em>{song.year}</em>}
+            {!song.is_downloadable && <em>Link-only</em>}
           </div>
+        </div>
 
-          <div className="sc-meta-line">
-            <span className={`sc-meta-pill sc-${song.source_type}`}>
-              {sourceLabel}
-            </span>
-
-            {song.album && <span>{song.album}</span>}
-            {song.year && <span>{song.year}</span>}
-            {!song.is_downloadable && <span>Link-only</span>}
-          </div>
-        </button>
-
-        <div
-          className="sc-actions"
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <button
-            type="button"
-            className="sc-play"
-            onClick={handlePlay}
-            onMouseDown={(e) => e.stopPropagation()}
-            onPointerDown={(e) => e.stopPropagation()}
-            aria-label="Çal"
-            title="Çal"
-          >
+        <div className="hm-song-actions">
+          <button type="button" className="hm-song-btn hm-song-play" onClick={playSong} aria-label="Çal" title="Çal">
             {playing && player.playing ? "❚❚" : "▶"}
           </button>
 
-          <button
-            type="button"
-            className={`sc-heart ${liked ? "on" : ""}`}
-            onClick={toggleFav}
-            onMouseDown={(e) => e.stopPropagation()}
-            onPointerDown={(e) => e.stopPropagation()}
-            aria-label="Favori"
-            title="Favori"
-          >
+          <button type="button" className={`hm-song-btn hm-song-heart ${liked ? "on" : ""}`} onClick={toggleFav} aria-label="Favori" title="Favori">
             {liked ? "♥" : "♡"}
-            {likeCount > 0 && <i>{likeCount}</i>}
+            {likeCount > 0 && <small>{likeCount}</small>}
           </button>
 
-          <div className="sc-menu-wrap">
-            <button
-              type="button"
-              className="sc-dots"
-              onClick={toggleMenu}
-              onMouseDown={(e) => e.stopPropagation()}
-              onPointerDown={(e) => e.stopPropagation()}
-              aria-label="Menü"
-              title="Menü"
-            >
-              ⋯
-            </button>
+          <div className="hm-song-menu-wrap">
+            <button type="button" className="hm-song-btn hm-song-dots" onClick={toggleMenu} aria-label="Menü" title="Menü">⋯</button>
 
             {menu && (
-              <div
-                className="sc-menu"
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-              >
-                <button type="button" onClick={openDetails}>
-                  Detay / yorum / playlist
-                </button>
+              <div className="hm-song-menu" onClick={(e) => e.stopPropagation()}>
+                <button type="button" onClick={openDetails}>Detay / yorum / playlist</button>
 
                 {song.is_downloadable && !isOffline && (
-                  <button type="button" onClick={saveOffline} disabled={busy}>
-                    {busy ? "İndiriliyor..." : "Offline indir"}
-                  </button>
+                  <button type="button" onClick={saveOffline} disabled={busy}>{busy ? "İndiriliyor..." : "Offline indir"}</button>
                 )}
 
-                {isOffline && (
-                  <button type="button" onClick={removeOffline}>
-                    Offline'dan kaldır
-                  </button>
-                )}
-
-                {!song.is_downloadable && (
-                  <div className="sc-note">Bu kaynak offline indirilemez</div>
-                )}
+                {isOffline && <button type="button" onClick={removeOffline}>Offline'dan kaldır</button>}
+                {!song.is_downloadable && <div className="hm-song-note">Bu kaynak offline indirilemez</div>}
 
                 {song.source_url && (
-                  <a
-                    href={song.source_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={() => setMenu(false)}
-                  >
-                    Harici dinle ↗
-                  </a>
+                  <a href={song.source_url} target="_blank" rel="noreferrer" onClick={() => setMenu(false)}>Harici dinle ↗</a>
                 )}
 
-                {inPlaylist && (
-                  <button type="button" onClick={removeFromPlaylist}>
-                    Playlistten çıkar
-                  </button>
-                )}
-
-                <button type="button" className="m-danger" onClick={del}>
-                  Sil
-                </button>
+                {inPlaylist && <button type="button" onClick={removeFromPlaylist}>Playlistten çıkar</button>}
+                <button type="button" className="danger" onClick={del}>Sil</button>
               </div>
             )}
           </div>
         </div>
       </article>
 
-      {details && (
-        <SongDetails
-          song={song}
-          onClose={() => setDetails(false)}
-          onChanged={onChanged}
-        />
-      )}
+      {details && <SongDetails song={song} onClose={() => setDetails(false)} onChanged={onChanged} />}
     </>
   );
 }
