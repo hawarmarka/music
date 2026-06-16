@@ -5693,3 +5693,71 @@ textarea,
     border-radius: 20px;
   }
 }
+/* ============================================================
+   HAWARMUSIC CLICK FIX
+   Liste satırındaki play / favori / menü butonlarının tıklanmasını düzeltir
+   ============================================================ */
+
+.song-card,
+.song-list-row {
+  position: relative !important;
+}
+
+.song-list-row .sc-art,
+.song-list-row .sc-body,
+.song-list-row .sc-titles {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.song-list-row .sc-actions {
+  position: relative !important;
+  z-index: 50 !important;
+  pointer-events: auto !important;
+}
+
+.song-list-row .sc-actions button,
+.song-list-row .sc-play,
+.song-list-row .sc-heart,
+.song-list-row .sc-dots,
+.song-list-row .sc-menu-wrap,
+.song-list-row .sc-menu,
+.song-list-row .sc-menu button,
+.song-list-row .sc-menu a {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 60 !important;
+}
+
+.song-list-row .sc-menu {
+  z-index: 9999 !important;
+}
+
+.song-list-row::before,
+.song-list-row::after,
+.song-list-row .sc-body::before,
+.song-list-row .sc-body::after,
+.song-list-row .sc-actions::before,
+.song-list-row .sc-actions::after {
+  pointer-events: none !important;
+}
+
+/* Sağdaki butonların üstüne başka alan binmesin */
+.song-list-row .sc-actions {
+  min-width: max-content !important;
+  flex-shrink: 0 !important;
+}
+
+/* Mobilde de tıklama alanı garanti olsun */
+@media (max-width: 900px) {
+  .song-list-row .sc-actions {
+    z-index: 80 !important;
+  }
+
+  .song-list-row .sc-dots,
+  .song-list-row .sc-heart,
+  .song-list-row .sc-play {
+    z-index: 90 !important;
+  }
+}
